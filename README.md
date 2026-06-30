@@ -1,6 +1,7 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/ardennguyen/zalo-agent-cli/main/assets/mascot.png" width="120" alt="zalo-mcp mascot" />
 </p>
+
 # zalo-mcp
 
 Gói cài đặt độc lập **Model Context Protocol (MCP)** server cho Zalo. Môi trường đóng gói (sandbox) 1-click giúp AI agents (Claude Code, Cursor) tự động hóa Zalo Personal & Official Account mà không làm rác máy tính của bạn.
