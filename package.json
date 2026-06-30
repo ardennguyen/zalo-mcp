@@ -1,0 +1,16 @@
+{
+  "name": "zalo-mcp",
+  "version": "1.0.0",
+  "description": "Zalo Model Context Protocol (MCP) Server Integration",
+  "main": "mcp-server.js",
+  "type": "commonjs",
+  "scripts": {
+    "login": "zalo-agent login",
+    "mcp": "node mcp-server.js",
+    "oa:init": "zalo-agent oa init"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "zalo-agent-cli": "github:ardennguyen/zalo-agent-cli"
+  }
+}
