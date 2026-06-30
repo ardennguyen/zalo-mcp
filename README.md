@@ -115,6 +115,14 @@ Thêm MCP server mới trong settings của Cursor:
 
 ---
 
+## 📖 Tài liệu đầy đủ
+
+**[Wiki → github.com/ardennguyen/zalo-agent-cli/wiki](https://github.com/ardennguyen/zalo-agent-cli/wiki)**
+
+Hướng dẫn chi tiết cho tất cả lệnh, thiết lập MCP, cache cục bộ, Official Account API và nhiều hơn nữa — cả tiếng Việt lẫn tiếng Anh.
+
+---
+
 
 
 ---
@@ -189,6 +197,12 @@ Configure your AI clients to run the server in stdio mode:
 
 *   **Update Deps:** `.\zalo-mcp.ps1 update` or `./zalo-mcp.sh update`
 *   **Clean Env:** `.\zalo-mcp.ps1 clean` or `./zalo-mcp.sh clean`
+
+### 📖 Documentation
+
+**[Full Wiki → github.com/ardennguyen/zalo-agent-cli/wiki](https://github.com/ardennguyen/zalo-agent-cli/wiki)**
+
+Detailed guides for all commands, MCP setup, local cache, Official Account API, and more — available in both English and Tiếng Việt.
 
 ---
 
