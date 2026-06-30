@@ -1,6 +1,6 @@
 {
   "name": "zalo-mcp",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "description": "Zalo Model Context Protocol (MCP) Server Integration",
   "main": "mcp-server.js",
   "type": "commonjs",
