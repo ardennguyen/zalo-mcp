@@ -1,25 +1,31 @@
-# 🤖 Zalo Model Context Protocol (MCP) Server & CLI
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ardennguyen/zalo-agent-cli/main/assets/mascot.png" width="120" alt="zalo-mcp mascot" />
+</p>
+# zalo-mcp
 
-This package provides a self-contained, isolated **Model Context Protocol (MCP)** server and command-line interface (CLI) to automate Zalo personal accounts and Zalo Official Accounts (OA) API v3.0. It allows AI agents (like Claude Code, Cursor, and others) to interact directly with Zalo.
+Gói cài đặt độc lập **Model Context Protocol (MCP)** server cho Zalo. Môi trường đóng gói (sandbox) 1-click giúp AI agents (Claude Code, Cursor) tự động hóa Zalo Personal & Official Account mà không làm rác máy tính của bạn.
 
-### What is the difference between `zalo-mcp` and `zalo-agent-cli`?
-*   **`zalo-agent-cli`**: This is the core automation engine and logic library. It does all the heavy lifting for Zalo's APIs, handles authentication, and contains the actual MCP server source code.
-*   **`zalo-mcp`** (This Repository): This is a lightweight deployment wrapper. It doesn't contain any core code. Instead, its job is to give you a 1-click isolated environment. It safely pulls the core `zalo-agent-cli` engine into a local sandboxed folder, manages the required Python/Node environments, and provides the actual config files (`.env`, `mcp-server.js`) that Claude or Cursor will execute so your global computer environment remains entirely untouched.
+**[Tiếng Việt](#bắt-đầu-nhanh)** | **[English](#english)**
 
----
-
-## 📋 Prerequisites
-
-Before running the installer, ensure your system has the following installed:
-*   **Node.js**: Version 20 or higher (Required for the core MCP server).
-*   **Python**: Version 3.8 or higher (Optional, but required if you want the server to generate PDF reports and data visualizations).
-*   **Git**: Required to pull the latest versions of the dependencies.
+> [!TIP]
+> **Sự khác biệt giữa `zalo-mcp` và `zalo-agent-cli`?**
+> - **`zalo-agent-cli`**: Là bộ mã nguồn lõi (engine). Xử lý toàn bộ logic API, login, và chứa mã nguồn thật sự của MCP Server.
+> - **`zalo-mcp` (Repo này)**: Là vỏ bọc triển khai nhanh (deployment wrapper). Nó không chứa mã nguồn lõi. Thay vào đó, nó dùng lệnh tự động tạo ra một thư mục cục bộ an toàn, kéo engine về, tải Node/Python, cấu hình `.env` để Claude/Cursor có thể chạy ngay lập tức mà hệ thống của bạn hoàn toàn sạch sẽ.
 
 ---
 
-## 🚀 Quick Start (One-Line Installation)
+## 📋 Yêu cầu hệ thống
 
-To keep your host system clean and isolated, all dependencies are installed locally in an isolated folder. You can install the server anywhere on your system using a single command:
+Trước khi chạy trình cài đặt, hãy đảm bảo máy bạn đã có:
+*   **Node.js**: Phiên bản 20 trở lên (Bắt buộc cho MCP server).
+*   **Python**: Phiên bản 3.8 trở lên (Tùy chọn, cần thiết nếu muốn server tự render biểu đồ hoặc PDF report).
+*   **Git**: Cần thiết để clone các bản cập nhật phụ thuộc.
+
+---
+
+## 🚀 Bắt đầu nhanh (Cài đặt 1 dòng lệnh)
+
+Mọi phụ thuộc (dependencies) sẽ được tải vào một thư mục cách ly. Bạn có thể cài đặt server ở bất kỳ đâu trên máy tính chỉ với 1 lệnh duy nhất:
 
 **macOS / Linux:**
 ```bash
@@ -31,69 +37,139 @@ curl -fsSL https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main/zalo-mcp.
 Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main/zalo-mcp.ps1 | Out-File $env:TEMP\zalo-mcp.ps1; & $env:TEMP\zalo-mcp.ps1 install
 ```
 
-### What the installer does:
-1. Creates a `zalo-mcp` directory in your current location.
-2. Downloads the necessary wrapper scripts and configurations.
-3. Installs Node.js dependencies into a local `node_modules/` folder.
-4. Creates an isolated Python virtual environment (`venv/`) for PDF generation and reporting.
-5. Sets up your `.env` configuration file.
+### Trình cài đặt sẽ làm gì?
+1. Tạo thư mục `zalo-mcp` tại vị trí hiện tại.
+2. Tải các file wrapper và cấu hình.
+3. Cài đặt các gói Node.js vào thư mục `node_modules/` cục bộ.
+4. Tạo môi trường ảo Python biệt lập (`venv/`).
+5. Tạo file cấu hình `.env`.
 
-*(Note: During setup, you may be prompted to enter a Zalo OA Webhook Port and Zalo MCP HTTP Port if running interactively. You can also manually edit `.env` later).*
+*(Lưu ý: Bạn có thể được hỏi nhập Port nếu chạy ở chế độ tương tác, hoặc bạn có thể tự sửa `.env` sau).*
 
 ---
 
-## 🔑 Authentication Flows
+## 🔑 Đăng nhập & Xác thực
 
-All authentication details are kept strictly local and secure on your machine.
+Mọi thông tin xác thực đều được lưu cục bộ và an toàn trên máy của bạn.
 
-### A. Personal Zalo Account (Unofficial API)
-To log in with a personal Zalo account:
+### A. Zalo Cá Nhân (API Không chính thức)
+1. Chạy lệnh đăng nhập:
+   ```bash
+   npx zalo-agent login
+   ```
+2. Một mã QR sẽ hiển thị trên terminal. Mở **app Zalo trên điện thoại > Quét mã QR** (đừng dùng camera thường của điện thoại).
+
+> [!IMPORTANT]
+> **Vị trí lưu trữ Credentials:** Lưu mã hóa tại `~/.zalo-agent-cli/` (quyền `0600`).
+> **Cảnh báo:** Đây là API không chính thức, tài khoản cá nhân của bạn có thể bị khóa (ban) nếu dùng để spam liên tục. Không nên dùng nick chính.
+
+### B. Zalo Official Account (API v3.0 Chính thức)
+1. Khởi tạo kết nối OA:
+   ```bash
+   npx zalo-agent oa init --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
+   ```
+2. Làm theo hướng dẫn trên trình duyệt để ủy quyền ứng dụng.
+
+> [!IMPORTANT]
+> **Vị trí lưu trữ Credentials:** Lưu an toàn tại `~/.zalo-agent/oa-credentials.json`.
+> OA Access Tokens hết hạn sau 25 giờ. Refresh bất cứ lúc nào bằng lệnh: `npx zalo-agent oa refresh`
+
+---
+
+## 🤖 Tích hợp AI Agent (MCP)
+
+Đảm bảo cấu hình AI client của bạn trỏ tới file `mcp-server.js` trong thư mục cài đặt `zalo-mcp`.
+
+### 1. Claude Code
+Thêm đoạn sau vào `mcpServers` trong `~/.claude/settings.json`:
+```json
+{
+  "mcpServers": {
+    "zalo": {
+      "command": "node",
+      "args": ["/đường/dẫn/tuyệt/đối/zalo-mcp/mcp-server.js"],
+      "cwd": "/đường/dẫn/tuyệt/đối/zalo-mcp"
+    }
+  }
+}
+```
+
+### 2. Cursor
+Thêm MCP server mới trong settings của Cursor:
+*   **Name:** `zalo`
+*   **Type:** `stdio`
+*   **Command:** `node /đường/dẫn/tuyệt/đối/zalo-mcp/mcp-server.js`
+
+---
+
+## 🛠️ Quản lý & Cập nhật
+
+**Cập nhật bản mới nhất:** (Cập nhật engine, node_modules, python deps)
+*   **Windows**: `.\zalo-mcp.ps1 update`
+*   **macOS / Linux**: `./zalo-mcp.sh update`
+
+**Dọn dẹp môi trường:** (Xóa sạch mọi deps để cài lại từ đầu)
+*   **Windows**: `.\zalo-mcp.ps1 clean`
+*   **macOS / Linux**: `./zalo-mcp.sh clean`
+
+---
+
+
+
+---
+
+## English
+
+Self-contained **Model Context Protocol (MCP)** server installer for Zalo. A 1-click sandboxed deployment that enables AI agents (Claude Code, Cursor) to automate Zalo Personal & Official Accounts without cluttering your host system.
+
+> [!TIP]
+> **What is the difference between `zalo-mcp` and `zalo-agent-cli`?**
+> - **`zalo-agent-cli`**: The core automation engine. It does all the heavy lifting, API logic, auth, and contains the actual MCP server source code.
+> - **`zalo-mcp` (This Repo)**: The lightweight deployment wrapper. It contains no core code. Instead, its 1-click script safely pulls the engine into a local sandboxed folder, sets up Node/Python, and configures `.env` so Claude/Cursor can run instantly while keeping your global system pristine.
+
+### 📋 Prerequisites
+
+*   **Node.js**: v20 or higher.
+*   **Python**: v3.8 or higher (Optional, for rendering charts and PDFs).
+*   **Git**: Required to pull dependencies.
+
+### 🚀 Quick Start (One-Line Installation)
+
+**macOS / Linux:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main/zalo-mcp.sh | bash -s install
+```
+
+**Windows (PowerShell):**
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main/zalo-mcp.ps1 | Out-File $env:TEMP\zalo-mcp.ps1; & $env:TEMP\zalo-mcp.ps1 install
+```
+
+### 🔑 Authentication
+
+#### A. Personal Zalo Account (Unofficial API)
 1. Run the login command:
    ```bash
    npx zalo-agent login
    ```
-2. A QR code will print in your terminal.
-3. Open the **Zalo app on your mobile phone** and scan the QR code using the **Zalo QR Scanner** (do not use your phone's default camera app).
-4. Confirm the login on your phone.
+2. Scan the printed QR code using the Zalo app on your phone.
 
 > [!IMPORTANT]
-> **Credential Storage Location:**  
-> Your personal session credentials are encrypted and stored at `~/.zalo-agent-cli/` (with safe `0600` permissions).  
->
-> **Safety Notice:** This is an unofficial API. While the library implements stealth measures, there is a risk of account ban. Do not use your primary personal account for heavy spam.
+> **Safety Notice:** This uses an unofficial API. Your personal account can get banned if heavily abused for spam.
 
----
-
-### B. Zalo Official Account (OA) (Official API v3.0)
-To log in with a Zalo Official Account (secure, official API):
-1. Run the Official Account initialization wizard:
+#### B. Zalo Official Account (Official API v3.0)
+1. Initialize OA credentials:
    ```bash
    npx zalo-agent oa init --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
    ```
-2. Follow the prompt to authorize the app via your browser.
-3. If you are deploying on a headless VPS, you can run:
-   ```bash
-   npx zalo-agent oa login --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET> --callback-host https://your-domain.com
-   ```
+2. Follow the browser prompt.
+Refresh tokens anytime with: `npx zalo-agent oa refresh`
 
-> [!IMPORTANT]
-> **Credential Storage Location:**  
-> Your Zalo OA Access Token and Refresh Token are stored at `~/.zalo-agent/oa-credentials.json` (with safe `0600` permissions).  
->
-> OA Access Tokens expire after 25 hours. You can refresh them anytime by running:
-> ```bash
-> npx zalo-agent oa refresh
-> ```
+### 🤖 AI Agent Integration (MCP)
 
----
+Configure your AI clients to run the server in stdio mode:
 
-## 🤖 AI Agent Integration (MCP)
-
-To hook up this Zalo MCP server to your AI clients, configure them to run this server in stdio mode:
-
-### 1. Claude Code
-Add the following block to your `mcpServers` configuration in `~/.claude/settings.json`:
-
+**Claude Code (`~/.claude/settings.json`):**
 ```json
 {
   "mcpServers": {
@@ -106,37 +182,14 @@ Add the following block to your `mcpServers` configuration in `~/.claude/setting
 }
 ```
 
-### 2. Cursor / Other Clients
-Add a new MCP server in your editor settings:
-*   **Name:** `zalo`
-*   **Type:** `stdio`
-*   **Command:** `node /absolute/path/to/zalo-mcp/mcp-server.js`
+**Cursor:** Add new MCP server: `stdio` -> `node /absolute/path/to/zalo-mcp/mcp-server.js`
+
+### 🛠️ Management Commands
+
+*   **Update Deps:** `.\zalo-mcp.ps1 update` or `./zalo-mcp.sh update`
+*   **Clean Env:** `.\zalo-mcp.ps1 clean` or `./zalo-mcp.sh clean`
 
 ---
 
-## 🛠️ Management & Updates
-
-### Updating Dependencies
-If a new version of the Zalo automation engine is released, or if you want to pull updates for Node.js modules or Python packages safely:
-*   **Windows**: Run `.\zalo-mcp.ps1 update`
-*   **macOS / Linux**: Run `./zalo-mcp.sh update`
-
-### Cleaning the Environment
-To completely wipe all installed dependencies (`node_modules` and `venv`) so you can start fresh:
-*   **Windows**: Run `.\zalo-mcp.ps1 clean`
-*   **macOS / Linux**: Run `./zalo-mcp.sh clean`
-
-### Manual Initialization
-If you cloned this repository manually without using the one-line installer, you can initialize the environment by running:
-*   **Windows**: Run `.\zalo-mcp.ps1 init`
-*   **macOS / Linux**: Run `./zalo-mcp.sh init`
-
----
-
-## 🧰 Architecture & Components
-
-This repository is a clean distribution wrapper. It does not contain any core developer source code. Instead, it relies on NPM and virtual environments to dynamically pull the engine.
-
-*   **`package.json`**: Configured as a consumer setup. It resolves the core engine directly from GitHub (`"zalo-agent-cli": "github:ardennguyen/zalo-agent-cli"`).
-*   **`zalo-mcp.sh` / `zalo-mcp.ps1`**: Orchestrates the local Node and Python environments.
-*   **`mcp-server.js`**: The tiny entry point that loads environment configs and executes `zalo-agent mcp start`.
+## License
+[MIT](LICENSE)
