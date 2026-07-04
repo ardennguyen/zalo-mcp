@@ -198,25 +198,43 @@ function Run-Update {
     Write-Host "  Zalo MCP Server Update - Windows" -ForegroundColor Cyan
     Write-Host "===================================================" -ForegroundColor Cyan
     Write-Host ""
-    
-    Write-Host "[1/2] Updating Node.js dependencies..." -ForegroundColor Yellow
-    npm update
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "[WARNING] Failed to run 'npm update'. Running 'npm install' as fallback..." -ForegroundColor Yellow
-        npm install
+
+    # Step 1: Self-update this script and mcp-server.js from GitHub
+    Write-Host "[1/3] Updating deployment scripts from GitHub..." -ForegroundColor Yellow
+    $baseUrl = "https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main"
+    $selfFiles = @("zalo-mcp.ps1", "zalo-mcp.sh", "mcp-server.js", "package.json")
+    foreach ($file in $selfFiles) {
+        try {
+            Invoke-WebRequest -Uri "$baseUrl/$file" -OutFile ".\$file" -UseBasicParsing -ErrorAction Stop
+            Write-Host "  -> Updated $file" -ForegroundColor Green
+        } catch {
+            Write-Host "  -> [WARNING] Could not update $file (continuing)" -ForegroundColor Yellow
+        }
     }
-    Write-Host "Node.js packages updated successfully.`n" -ForegroundColor Green
-    
-    Write-Host "[2/2] Updating Python dependencies (if virtual environment exists)..." -ForegroundColor Yellow
+    Write-Host "Scripts updated.`n" -ForegroundColor Green
+
+    # Step 2: Reinstall zalo-agent-cli from GitHub (ardennguyen fork), not npm registry
+    Write-Host "[2/3] Updating zalo-agent-cli from GitHub (ardennguyen/zalo-agent-cli)..." -ForegroundColor Yellow
+    npm install github:ardennguyen/zalo-agent-cli
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[ERROR] Failed to update zalo-agent-cli from GitHub." -ForegroundColor Red
+        exit 1
+    }
+    Write-Host "zalo-agent-cli updated successfully.`n" -ForegroundColor Green
+
+    # Step 3: Update Python dependencies (if venv exists)
+    Write-Host "[3/3] Updating Python dependencies (if virtual environment exists)..." -ForegroundColor Yellow
     if (Test-Path "venv") {
         Write-Host "Virtual environment detected. Updating packages..."
         & ".\venv\Scripts\python.exe" -m pip install --upgrade pip | Out-Null
-        & ".\venv\Scripts\pip.exe" install --upgrade -r requirements.txt
+        if (Test-Path "requirements.txt") {
+            & ".\venv\Scripts\pip.exe" install --upgrade -r requirements.txt
+        }
         Write-Host "Python dependencies updated successfully.`n" -ForegroundColor Green
     } else {
         Write-Host "No python virtual environment found. Skipping python update.`n" -ForegroundColor DarkGray
     }
-    
+
     Write-Host "===================================================" -ForegroundColor Cyan
     Write-Host "  Update completed!" -ForegroundColor Cyan
     Write-Host "===================================================" -ForegroundColor Cyan

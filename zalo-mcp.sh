@@ -219,28 +219,47 @@ run_update() {
     echo "  Zalo MCP Server Update - macOS/Linux"
     echo "==================================================="
     echo ""
-    
-    echo "[1/2] Updating Node.js dependencies..."
-    if ! npm update; then
-        echo "[WARNING] Failed to run 'npm update'. Running 'npm install' as fallback..."
-        npm install
-    fi
-    echo "Node.js packages updated successfully."
+
+    # Step 1: Self-update scripts and mcp-server.js from GitHub
+    echo "[1/3] Updating deployment scripts from GitHub..."
+    BASE_URL="https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main"
+    SELF_FILES=("zalo-mcp.ps1" "zalo-mcp.sh" "mcp-server.js" "package.json")
+    for FILE in "${SELF_FILES[@]}"; do
+        if curl -fsSL -o "./$FILE" "$BASE_URL/$FILE"; then
+            echo "  -> Updated $FILE"
+        else
+            echo "  -> [WARNING] Could not update $FILE (continuing)"
+        fi
+    done
+    chmod +x ./zalo-mcp.sh 2>/dev/null
+    echo "Scripts updated."
     echo ""
-    
-    echo "[2/2] Updating Python dependencies (if virtual environment exists)..."
+
+    # Step 2: Reinstall zalo-agent-cli from GitHub (ardennguyen fork), not npm registry
+    echo "[2/3] Updating zalo-agent-cli from GitHub (ardennguyen/zalo-agent-cli)..."
+    if ! npm install github:ardennguyen/zalo-agent-cli; then
+        echo "[ERROR] Failed to update zalo-agent-cli from GitHub."
+        exit 1
+    fi
+    echo "zalo-agent-cli updated successfully."
+    echo ""
+
+    # Step 3: Update Python dependencies (if venv exists)
+    echo "[3/3] Updating Python dependencies (if virtual environment exists)..."
     if [ -d "venv" ]; then
         echo "Virtual environment detected. Updating packages..."
         . venv/bin/activate
         pip install --upgrade pip >/dev/null 2>&1
-        pip install --upgrade -r requirements.txt
+        if [ -f "requirements.txt" ]; then
+            pip install --upgrade -r requirements.txt
+        fi
         deactivate
         echo "Python dependencies updated successfully."
     else
         echo "No python virtual environment found. Skipping python update."
     fi
     echo ""
-    
+
     echo "==================================================="
     echo "  Update completed!"
     echo "==================================================="
