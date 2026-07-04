@@ -1,16 +1,48 @@
 {
-  "name": "zalo-mcp",
+  "name": "@ardennguyen/zalo-mcp",
   "version": "1.0.5",
   "description": "Zalo Model Context Protocol (MCP) Server Integration",
+  "author": "ardennguyen",
+  "license": "MIT",
   "main": "mcp-server.js",
   "type": "commonjs",
+  "files": [
+    "mcp-server.js",
+    "zalo-mcp.ps1",
+    "zalo-mcp.sh",
+    ".env.example",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
+    "start": "node mcp-server.js",
     "login": "zalo-agent login",
     "mcp": "node mcp-server.js",
     "oa:init": "zalo-agent oa init"
   },
+  "keywords": [
+    "zalo",
+    "mcp",
+    "model-context-protocol",
+    "automation",
+    "messaging",
+    "vietnam",
+    "claude",
+    "zalo-oa",
+    "webhook"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ardennguyen/zalo-mcp"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "dotenv": "^17.4.2",
     "zalo-agent-cli": "github:ardennguyen/zalo-agent-cli"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
