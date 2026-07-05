@@ -86,13 +86,13 @@ function Run-Init {
         $nodeVersionString = $nodeVersionOutput -replace 'v', ''
         $nodeMajor = [int]($nodeVersionString -split '\.')[0]
         
-        if ($nodeMajor -lt 20) {
-            Write-Host "[WARNING] Node.js version is $nodeMajor, but version 20 or higher is recommended." -ForegroundColor Yellow
+        if ($nodeMajor -lt 22) {
+            Write-Host "[WARNING] Node.js version is $nodeMajor, but version 22 or higher is required." -ForegroundColor Yellow
         }
         Write-Host "Node.js is ready.`n" -ForegroundColor Green
     } catch {
         Write-Host "[ERROR] Node.js is not installed or not in your PATH." -ForegroundColor Red
-        Write-Host "Please download and install Node.js - version 20 or higher - from: https://nodejs.org/`n"
+        Write-Host "Please download and install Node.js - version 22 or higher - from: https://nodejs.org/`n"
         exit 1
     }
     
@@ -186,9 +186,9 @@ function Run-Init {
     Write-Host "===================================================" -ForegroundColor Cyan
     Write-Host "`nNext Steps:"
     Write-Host "1. Scan QR code to login your Personal Zalo Account:" -ForegroundColor White
-    Write-Host "   npx zalo-agent login`n" -ForegroundColor DarkGray
+    Write-Host "   npx @ardennguyen/zalo-agent-cli login`n" -ForegroundColor DarkGray
     Write-Host "2. [Optional] Setup your Zalo Official Account:" -ForegroundColor White
-    Write-Host "   npx zalo-agent oa init --app-id [ID] --secret [KEY]`n" -ForegroundColor DarkGray
+    Write-Host "   npx @ardennguyen/zalo-agent-cli oa init --app-id [ID] --secret [KEY]`n" -ForegroundColor DarkGray
     Write-Host "3. Add this server to your Claude Code or Cursor config." -ForegroundColor White
     Write-Host "   Read README.md for details.`n" -ForegroundColor DarkGray
 }
@@ -213,14 +213,14 @@ function Run-Update {
     }
     Write-Host "Scripts updated.`n" -ForegroundColor Green
 
-    # Step 2: Reinstall zalo-agent-cli from GitHub (ardennguyen fork), not npm registry
-    Write-Host "[2/3] Updating zalo-agent-cli from GitHub (ardennguyen/zalo-agent-cli)..." -ForegroundColor Yellow
-    npm install github:ardennguyen/zalo-agent-cli
+    # Step 2: Update @ardennguyen/zalo-agent-cli from npm registry
+    Write-Host "[2/3] Updating @ardennguyen/zalo-agent-cli from npm registry..." -ForegroundColor Yellow
+    npm install @ardennguyen/zalo-agent-cli@latest
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "[ERROR] Failed to update zalo-agent-cli from GitHub." -ForegroundColor Red
+        Write-Host "[ERROR] Failed to update @ardennguyen/zalo-agent-cli from npm." -ForegroundColor Red
         exit 1
     }
-    Write-Host "zalo-agent-cli updated successfully.`n" -ForegroundColor Green
+    Write-Host "@ardennguyen/zalo-agent-cli updated successfully.`n" -ForegroundColor Green
 
     # Step 3: Update Python dependencies (if venv exists)
     Write-Host "[3/3] Updating Python dependencies (if virtual environment exists)..." -ForegroundColor Yellow

@@ -93,7 +93,7 @@ run_init() {
     echo "[1/4] Checking Node.js installation..."
     if ! command -v node >/dev/null 2>&1; then
         echo "[ERROR] Node.js is not installed or not in your PATH."
-        echo "Please download and install Node.js - version 20 or higher - from: https://nodejs.org/"
+        echo "Please download and install Node.js - version 22 or higher - from: https://nodejs.org/"
         echo ""
         exit 1
     fi
@@ -101,8 +101,8 @@ run_init() {
     NODE_VERSION=$(node -v | sed 's/v//')
     NODE_MAJOR=$(echo "$NODE_VERSION" | cut -d. -f1)
     
-    if [ "$NODE_MAJOR" -lt 20 ]; then
-        echo "[WARNING] Node.js version is $NODE_MAJOR, but version 20 or higher is recommended."
+    if [ "$NODE_MAJOR" -lt 22 ]; then
+        echo "[WARNING] Node.js version is $NODE_MAJOR, but version 22 or higher is required."
     fi
     echo "Node.js is ready."
     echo ""
@@ -204,10 +204,10 @@ run_init() {
     echo ""
     echo "Next Steps:"
     echo "1. Scan QR code to login your Personal Zalo Account:"
-    echo "   npx zalo-agent login"
+    echo "   npx @ardennguyen/zalo-agent-cli login"
     echo ""
     echo "2. [Optional] Setup your Zalo Official Account:"
-    echo "   npx zalo-agent oa init --app-id [ID] --secret [KEY]"
+    echo "   npx @ardennguyen/zalo-agent-cli oa init --app-id [ID] --secret [KEY]"
     echo ""
     echo "3. Add this server to your Claude Code or Cursor config."
     echo "   Read README.md for details."
@@ -235,13 +235,13 @@ run_update() {
     echo "Scripts updated."
     echo ""
 
-    # Step 2: Reinstall zalo-agent-cli from GitHub (ardennguyen fork), not npm registry
-    echo "[2/3] Updating zalo-agent-cli from GitHub (ardennguyen/zalo-agent-cli)..."
-    if ! npm install github:ardennguyen/zalo-agent-cli; then
-        echo "[ERROR] Failed to update zalo-agent-cli from GitHub."
+    # Step 2: Update @ardennguyen/zalo-agent-cli from npm registry
+    echo "[2/3] Updating @ardennguyen/zalo-agent-cli from npm registry..."
+    if ! npm install @ardennguyen/zalo-agent-cli@latest; then
+        echo "[ERROR] Failed to update @ardennguyen/zalo-agent-cli from npm."
         exit 1
     fi
-    echo "zalo-agent-cli updated successfully."
+    echo "@ardennguyen/zalo-agent-cli updated successfully."
     echo ""
 
     # Step 3: Update Python dependencies (if venv exists)
