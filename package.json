@@ -17,9 +17,9 @@
   ],
   "scripts": {
     "start": "node mcp-server.js",
-    "login": "npx @ardennguyen/zalo-agent-cli login",
+    "login": "zalo-agent login",
     "mcp": "node mcp-server.js",
-    "oa:init": "npx @ardennguyen/zalo-agent-cli oa init"
+    "oa:init": "zalo-agent oa init"
   },
   "keywords": [
     "zalo",
@@ -40,15 +40,8 @@
     "node": ">=22"
   },
   "dependencies": {
-    "dotenv": "^17.4.2"
-  },
-  "peerDependencies": {
-    "@ardennguyen/zalo-agent-cli": ">=1.0.7"
-  },
-  "peerDependenciesMeta": {
-    "@ardennguyen/zalo-agent-cli": {
-      "optional": true
-    }
+    "dotenv": "^17.4.2",
+    "@ardennguyen/zalo-agent-cli": "1.0.7"
   },
   "publishConfig": {
     "access": "public"
