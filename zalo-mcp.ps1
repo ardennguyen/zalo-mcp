@@ -218,7 +218,7 @@ function Run-Update {
 
     # Step 2: Update @ardennguyen/zalo-agent-cli from npm registry
     Write-Host "[2/3] Updating @ardennguyen/zalo-agent-cli from npm registry..." -ForegroundColor Yellow
-    npm install @ardennguyen/zalo-agent-cli@latest
+    npm install -g @ardennguyen/zalo-agent-cli@latest
     if ($LASTEXITCODE -ne 0) {
         Write-Host "[ERROR] Failed to update @ardennguyen/zalo-agent-cli from npm." -ForegroundColor Red
         exit 1

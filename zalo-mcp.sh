@@ -239,7 +239,7 @@ run_update() {
 
     # Step 2: Update @ardennguyen/zalo-agent-cli from npm registry
     echo "[2/3] Updating @ardennguyen/zalo-agent-cli from npm registry..."
-    if ! npm install @ardennguyen/zalo-agent-cli@latest; then
+    if ! npm install -g @ardennguyen/zalo-agent-cli@latest; then
         echo "[ERROR] Failed to update @ardennguyen/zalo-agent-cli from npm."
         exit 1
     fi

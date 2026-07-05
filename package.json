@@ -1,6 +1,6 @@
 {
   "name": "@ardennguyen/zalo-mcp",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Zalo Model Context Protocol (MCP) Server Integration",
   "author": "ardennguyen",
   "license": "MIT",
@@ -17,9 +17,9 @@
   ],
   "scripts": {
     "start": "node mcp-server.js",
-    "login": "zalo-agent login",
+    "login": "npx @ardennguyen/zalo-agent-cli login",
     "mcp": "node mcp-server.js",
-    "oa:init": "zalo-agent oa init"
+    "oa:init": "npx @ardennguyen/zalo-agent-cli oa init"
   },
   "keywords": [
     "zalo",
