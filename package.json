@@ -39,8 +39,15 @@
     "node": ">=22"
   },
   "dependencies": {
-    "dotenv": "^17.4.2",
-    "@ardennguyen/zalo-agent-cli": "^1.0.7"
+    "dotenv": "^17.4.2"
+  },
+  "peerDependencies": {
+    "@ardennguyen/zalo-agent-cli": ">=1.0.7"
+  },
+  "peerDependenciesMeta": {
+    "@ardennguyen/zalo-agent-cli": {
+      "optional": true
+    }
   },
   "publishConfig": {
     "access": "public"
