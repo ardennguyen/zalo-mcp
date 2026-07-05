@@ -186,9 +186,9 @@ function Run-Init {
     Write-Host "===================================================" -ForegroundColor Cyan
     Write-Host "`nNext Steps:"
     Write-Host "1. Scan QR code to login your Personal Zalo Account:" -ForegroundColor White
-    Write-Host "   npx @ardennguyen/zalo-agent-cli login`n" -ForegroundColor DarkGray
+    Write-Host "   npm run login`n" -ForegroundColor DarkGray
     Write-Host "2. [Optional] Setup your Zalo Official Account:" -ForegroundColor White
-    Write-Host "   npx @ardennguyen/zalo-agent-cli oa init --app-id [ID] --secret [KEY]`n" -ForegroundColor DarkGray
+    Write-Host "   npm run oa:init -- --app-id [ID] --secret [KEY]`n" -ForegroundColor DarkGray
     Write-Host "3. Add this server to your Claude Code or Cursor config." -ForegroundColor White
     Write-Host "   Read README.md for details.`n" -ForegroundColor DarkGray
 }

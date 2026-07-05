@@ -56,7 +56,7 @@ Mọi thông tin xác thực đều được lưu cục bộ và an toàn trên 
 ### A. Zalo Cá Nhân (API Không chính thức)
 1. Chạy lệnh đăng nhập:
    ```bash
-   npx @ardennguyen/zalo-agent-cli login
+   npm run login
    ```
 2. Một mã QR sẽ hiển thị trên terminal. Mở **app Zalo trên điện thoại > Quét mã QR** (đừng dùng camera thường của điện thoại).
 
@@ -67,13 +67,13 @@ Mọi thông tin xác thực đều được lưu cục bộ và an toàn trên 
 ### B. Zalo Official Account (API v3.0 Chính thức)
 1. Khởi tạo kết nối OA:
    ```bash
-   npx @ardennguyen/zalo-agent-cli oa init --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
+   npm run oa:init -- --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
    ```
 2. Làm theo hướng dẫn trên trình duyệt để ủy quyền ứng dụng.
 
 > [!IMPORTANT]
 > **Vị trí lưu trữ Credentials:** Lưu an toàn tại `~/.zalo-agent/oa-credentials.json`.
-> OA Access Tokens hết hạn sau 25 giờ. Refresh bất cứ lúc nào bằng lệnh: `npx @ardennguyen/zalo-agent-cli oa refresh`
+> OA Access Tokens hết hạn sau 25 giờ. Refresh bất cứ lúc nào bằng lệnh: `npm run oa:refresh`
 
 ---
 
@@ -159,7 +159,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercont
 #### A. Personal Zalo Account (Unofficial API)
 1. Run the login command:
    ```bash
-   npx @ardennguyen/zalo-agent-cli login
+   npm run login
    ```
 2. Scan the printed QR code using the Zalo app on your phone.
 
@@ -169,10 +169,10 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercont
 #### B. Zalo Official Account (Official API v3.0)
 1. Initialize OA credentials:
    ```bash
-   npx @ardennguyen/zalo-agent-cli oa init --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
+   npm run oa:init -- --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
    ```
 2. Follow the browser prompt.
-Refresh tokens anytime with: `npx @ardennguyen/zalo-agent-cli oa refresh`
+Refresh tokens anytime with: `npm run oa:refresh`
 
 ### 🤖 AI Agent Integration (MCP)
 
