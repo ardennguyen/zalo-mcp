@@ -199,16 +199,19 @@ function Run-Update {
     Write-Host "===================================================" -ForegroundColor Cyan
     Write-Host ""
 
-    # Step 1: Self-update this script and mcp-server.js from GitHub
-    Write-Host "[1/3] Updating deployment scripts from GitHub..." -ForegroundColor Yellow
-    $baseUrl = "https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main"
-    $selfFiles = @("zalo-mcp.ps1", "zalo-mcp.sh", "mcp-server.js", "package.json")
-    foreach ($file in $selfFiles) {
-        try {
-            Invoke-WebRequest -Uri "$baseUrl/$file" -OutFile ".\$file" -UseBasicParsing -ErrorAction Stop
-            Write-Host "  -> Updated $file" -ForegroundColor Green
-        } catch {
-            Write-Host "  -> [WARNING] Could not update $file (continuing)" -ForegroundColor Yellow
+    # Step 1: Self-update this script and mcp-server.js from npm registry
+    Write-Host "[1/3] Updating deployment scripts from npm registry..." -ForegroundColor Yellow
+    npm install @ardennguyen/zalo-mcp@latest --no-save
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "  -> [WARNING] Could not download @ardennguyen/zalo-mcp from npm. (continuing)" -ForegroundColor Yellow
+    } else {
+        $selfFiles = @("zalo-mcp.ps1", "zalo-mcp.sh", "mcp-server.js", "package.json")
+        foreach ($file in $selfFiles) {
+            $sourcePath = ".\node_modules\@ardennguyen\zalo-mcp\$file"
+            if (Test-Path $sourcePath) {
+                Copy-Item $sourcePath ".\$file" -Force
+                Write-Host "  -> Updated $file" -ForegroundColor Green
+            }
         }
     }
     Write-Host "Scripts updated.`n" -ForegroundColor Green

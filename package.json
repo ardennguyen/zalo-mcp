@@ -1,6 +1,6 @@
 {
   "name": "@ardennguyen/zalo-mcp",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Zalo Model Context Protocol (MCP) Server Integration",
   "author": "ardennguyen",
   "license": "MIT",

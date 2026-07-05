@@ -220,17 +220,19 @@ run_update() {
     echo "==================================================="
     echo ""
 
-    # Step 1: Self-update scripts and mcp-server.js from GitHub
-    echo "[1/3] Updating deployment scripts from GitHub..."
-    BASE_URL="https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main"
-    SELF_FILES=("zalo-mcp.ps1" "zalo-mcp.sh" "mcp-server.js" "package.json")
-    for FILE in "${SELF_FILES[@]}"; do
-        if curl -fsSL -o "./$FILE" "$BASE_URL/$FILE"; then
-            echo "  -> Updated $FILE"
-        else
-            echo "  -> [WARNING] Could not update $FILE (continuing)"
-        fi
-    done
+    # Step 1: Self-update scripts and mcp-server.js from npm registry
+    echo "[1/3] Updating deployment scripts from npm registry..."
+    if npm install @ardennguyen/zalo-mcp@latest --no-save >/dev/null 2>&1; then
+        SELF_FILES=("zalo-mcp.ps1" "zalo-mcp.sh" "mcp-server.js" "package.json")
+        for FILE in "${SELF_FILES[@]}"; do
+            if [ -f "./node_modules/@ardennguyen/zalo-mcp/$FILE" ]; then
+                cp "./node_modules/@ardennguyen/zalo-mcp/$FILE" "./$FILE"
+                echo "  -> Updated $FILE"
+            fi
+        done
+    else
+        echo "  -> [WARNING] Could not download @ardennguyen/zalo-mcp from npm. (continuing)"
+    fi
     chmod +x ./zalo-mcp.sh 2>/dev/null
     echo "Scripts updated."
     echo ""
