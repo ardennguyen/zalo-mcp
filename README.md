@@ -18,7 +18,7 @@ Gói cài đặt độc lập **Model Context Protocol (MCP)** server cho Zalo. 
 ## 📋 Yêu cầu hệ thống
 
 Trước khi chạy trình cài đặt, hãy đảm bảo máy bạn đã có:
-*   **Node.js**: Phiên bản 20 trở lên (Bắt buộc cho MCP server).
+*   **Node.js**: Phiên bản 22 trở lên (Bắt buộc cho MCP server).
 *   **Python**: Phiên bản 3.8 trở lên (Tùy chọn, cần thiết nếu muốn server tự render biểu đồ hoặc PDF report).
 *   **Git**: Cần thiết để clone các bản cập nhật phụ thuộc.
 
@@ -56,7 +56,7 @@ Mọi thông tin xác thực đều được lưu cục bộ và an toàn trên 
 ### A. Zalo Cá Nhân (API Không chính thức)
 1. Chạy lệnh đăng nhập:
    ```bash
-   npx zalo-agent login
+   npx @ardennguyen/zalo-agent-cli login
    ```
 2. Một mã QR sẽ hiển thị trên terminal. Mở **app Zalo trên điện thoại > Quét mã QR** (đừng dùng camera thường của điện thoại).
 
@@ -67,13 +67,13 @@ Mọi thông tin xác thực đều được lưu cục bộ và an toàn trên 
 ### B. Zalo Official Account (API v3.0 Chính thức)
 1. Khởi tạo kết nối OA:
    ```bash
-   npx zalo-agent oa init --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
+   npx @ardennguyen/zalo-agent-cli oa init --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
    ```
 2. Làm theo hướng dẫn trên trình duyệt để ủy quyền ứng dụng.
 
 > [!IMPORTANT]
 > **Vị trí lưu trữ Credentials:** Lưu an toàn tại `~/.zalo-agent/oa-credentials.json`.
-> OA Access Tokens hết hạn sau 25 giờ. Refresh bất cứ lúc nào bằng lệnh: `npx zalo-agent oa refresh`
+> OA Access Tokens hết hạn sau 25 giờ. Refresh bất cứ lúc nào bằng lệnh: `npx @ardennguyen/zalo-agent-cli oa refresh`
 
 ---
 
@@ -138,7 +138,7 @@ Self-contained **Model Context Protocol (MCP)** server installer for Zalo. A 1-c
 
 ### 📋 Prerequisites
 
-*   **Node.js**: v20 or higher.
+*   **Node.js**: v22 or higher (required for MCP server).
 *   **Python**: v3.8 or higher (Optional, for rendering charts and PDFs).
 *   **Git**: Required to pull dependencies.
 
@@ -159,7 +159,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercont
 #### A. Personal Zalo Account (Unofficial API)
 1. Run the login command:
    ```bash
-   npx zalo-agent login
+   npx @ardennguyen/zalo-agent-cli login
    ```
 2. Scan the printed QR code using the Zalo app on your phone.
 
@@ -169,10 +169,10 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercont
 #### B. Zalo Official Account (Official API v3.0)
 1. Initialize OA credentials:
    ```bash
-   npx zalo-agent oa init --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
+   npx @ardennguyen/zalo-agent-cli oa init --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
    ```
 2. Follow the browser prompt.
-Refresh tokens anytime with: `npx zalo-agent oa refresh`
+Refresh tokens anytime with: `npx @ardennguyen/zalo-agent-cli oa refresh`
 
 ### 🤖 AI Agent Integration (MCP)
 
