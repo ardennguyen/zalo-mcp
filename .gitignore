@@ -12,3 +12,6 @@ venv/
 venv*/
 
 agent/
+
+# Agent configuration (local only)
+.agents/
