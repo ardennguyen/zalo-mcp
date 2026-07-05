@@ -1,6 +1,6 @@
 {
   "name": "@ardennguyen/zalo-mcp",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Zalo Model Context Protocol (MCP) Server Integration",
   "author": "ardennguyen",
   "license": "MIT",
@@ -12,7 +12,8 @@
     "zalo-mcp.sh",
     ".env.example",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "requirements.txt"
   ],
   "scripts": {
     "start": "node mcp-server.js",

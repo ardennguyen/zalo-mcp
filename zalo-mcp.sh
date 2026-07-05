@@ -223,7 +223,7 @@ run_update() {
     # Step 1: Self-update scripts and mcp-server.js from npm registry
     echo "[1/3] Updating deployment scripts from npm registry..."
     if npm install @ardennguyen/zalo-mcp@latest --no-save >/dev/null 2>&1; then
-        SELF_FILES=("zalo-mcp.ps1" "zalo-mcp.sh" "mcp-server.js" "package.json")
+        SELF_FILES=("zalo-mcp.ps1" "zalo-mcp.sh" "mcp-server.js" "package.json" "requirements.txt")
         for FILE in "${SELF_FILES[@]}"; do
             if [ -f "./node_modules/@ardennguyen/zalo-mcp/$FILE" ]; then
                 cp "./node_modules/@ardennguyen/zalo-mcp/$FILE" "./$FILE"

@@ -205,7 +205,7 @@ function Run-Update {
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  -> [WARNING] Could not download @ardennguyen/zalo-mcp from npm. (continuing)" -ForegroundColor Yellow
     } else {
-        $selfFiles = @("zalo-mcp.ps1", "zalo-mcp.sh", "mcp-server.js", "package.json")
+        $selfFiles = @("zalo-mcp.ps1", "zalo-mcp.sh", "mcp-server.js", "package.json", "requirements.txt")
         foreach ($file in $selfFiles) {
             $sourcePath = ".\node_modules\@ardennguyen\zalo-mcp\$file"
             if (Test-Path $sourcePath) {
