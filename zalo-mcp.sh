@@ -237,6 +237,12 @@ run_update() {
     echo "Scripts updated."
     echo ""
 
+    # Step 1.5: Ensure .env exists
+    if [ ! -f .env ] && [ -f .env.example ]; then
+        echo "Restoring missing .env file from template..."
+        cp .env.example .env
+    fi
+
     # Step 2: Update @ardennguyen/zalo-agent-cli from npm registry
     echo "[2/3] Updating @ardennguyen/zalo-agent-cli from npm registry..."
     if ! npm install @ardennguyen/zalo-agent-cli@latest; then

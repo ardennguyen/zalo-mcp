@@ -216,6 +216,12 @@ function Run-Update {
     }
     Write-Host "Scripts updated.`n" -ForegroundColor Green
 
+    # Step 1.5: Ensure .env exists
+    if (!(Test-Path ".env") -and (Test-Path ".env.example")) {
+        Write-Host "Restoring missing .env file from template..." -ForegroundColor Yellow
+        Copy-Item ".env.example" ".env"
+    }
+
     # Step 2: Update @ardennguyen/zalo-agent-cli from npm registry
     Write-Host "[2/3] Updating @ardennguyen/zalo-agent-cli from npm registry..." -ForegroundColor Yellow
     npm install @ardennguyen/zalo-agent-cli@latest
