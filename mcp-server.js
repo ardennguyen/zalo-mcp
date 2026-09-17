@@ -24,12 +24,13 @@ if (fs.existsSync(envPath)) {
   }
 }
 
-// In Windows, we run npx.cmd; on Unix/macOS, we run npx
+// Resolve the zalo-agent binary from this package's own node_modules
 const isWin = process.platform === 'win32';
-const npxCmd = isWin ? 'npx.cmd' : 'npx';
+const binName = isWin ? 'zalo-agent.cmd' : 'zalo-agent';
+const binPath = path.join(__dirname, 'node_modules', '.bin', binName);
 
-// Prepare base arguments for the Zalo agent CLI
-const args = ['zalo-agent', 'mcp', 'start'];
+// Prepare arguments for the Zalo agent CLI
+const args = ['mcp', 'start'];
 
 // Check if user requested HTTP transport mode via arguments
 const httpIndex = process.argv.indexOf('--http');
@@ -55,13 +56,12 @@ if (authIndex !== -1) {
   }
 }
 
-console.error(`Starting Zalo MCP Server via: npx ${args.join(' ')}`);
+console.error(`Starting Zalo MCP Server via: ${binPath} ${args.join(' ')}`);
 
-// Spawn the zalo-agent CLI in mcp mode
-const child = spawn(npxCmd, args, {
+// Spawn the zalo-agent CLI in mcp mode (no shell needed — direct binary)
+const child = spawn(binPath, args, {
   stdio: ['pipe', 'pipe', 'pipe'],
-  env: process.env,
-  shell: true
+  env: process.env
 });
 
 // Pipe parent stdin to child stdin
