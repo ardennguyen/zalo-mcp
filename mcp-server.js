@@ -24,13 +24,15 @@ if (fs.existsSync(envPath)) {
   }
 }
 
-// Resolve the zalo-agent binary from this package's own node_modules
+// Resolve the zalo-agent CLI entry point directly (avoids .cmd shell issues on Windows)
 const isWin = process.platform === 'win32';
-const binName = isWin ? 'zalo-agent.cmd' : 'zalo-agent';
-const binPath = path.join(__dirname, 'node_modules', '.bin', binName);
+const cliDir = path.join(__dirname, 'node_modules', '@ardennguyen', 'zalo-agent-cli');
+const cliBinCheck = isWin
+  ? path.join(__dirname, 'node_modules', '.bin', 'zalo-agent.cmd')
+  : path.join(__dirname, 'node_modules', '.bin', 'zalo-agent');
 
 // Auto-install dependencies if the CLI binary is missing
-if (!fs.existsSync(binPath)) {
+if (!fs.existsSync(cliBinCheck)) {
   console.error('zalo-agent-cli not found. Running npm install...');
   try {
     const npmCmd = isWin ? 'npm.cmd' : 'npm';
@@ -42,8 +44,13 @@ if (!fs.existsSync(binPath)) {
   }
 }
 
+// Resolve the actual JS entry point from the CLI package's bin field
+const cliPkg = require(path.join(cliDir, 'package.json'));
+const cliBinRelative = cliPkg.bin['zalo-agent'];
+const cliEntryPoint = path.join(cliDir, cliBinRelative);
+
 // Prepare arguments for the Zalo agent CLI
-const args = ['mcp', 'start'];
+const args = [cliEntryPoint, 'mcp', 'start'];
 
 // Check if user requested HTTP transport mode via arguments
 const httpIndex = process.argv.indexOf('--http');
@@ -69,10 +76,10 @@ if (authIndex !== -1) {
   }
 }
 
-console.error(`Starting Zalo MCP Server via: ${binPath} ${args.join(' ')}`);
+console.error(`Starting Zalo MCP Server via: node ${args.join(' ')}`);
 
-// Spawn the zalo-agent CLI in mcp mode (no shell needed — direct binary)
-const child = spawn(binPath, args, {
+// Spawn the zalo-agent CLI in mcp mode using node directly (cross-platform)
+const child = spawn(process.execPath, args, {
   stdio: ['pipe', 'pipe', 'pipe'],
   env: process.env
 });
