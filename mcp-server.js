@@ -1,4 +1,4 @@
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
@@ -28,6 +28,19 @@ if (fs.existsSync(envPath)) {
 const isWin = process.platform === 'win32';
 const binName = isWin ? 'zalo-agent.cmd' : 'zalo-agent';
 const binPath = path.join(__dirname, 'node_modules', '.bin', binName);
+
+// Auto-install dependencies if the CLI binary is missing
+if (!fs.existsSync(binPath)) {
+  console.error('zalo-agent-cli not found. Running npm install...');
+  try {
+    const npmCmd = isWin ? 'npm.cmd' : 'npm';
+    execSync(`${npmCmd} install`, { cwd: __dirname, stdio: 'inherit' });
+    console.error('Dependencies installed successfully.');
+  } catch (err) {
+    console.error('Failed to install dependencies:', err.message);
+    process.exit(1);
+  }
+}
 
 // Prepare arguments for the Zalo agent CLI
 const args = ['mcp', 'start'];
