@@ -1,6 +1,6 @@
 {
   "name": "@ardennguyen/zalo-mcp",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Zalo Model Context Protocol (MCP) Server Integration",
   "author": "ardennguyen",
   "license": "MIT",
@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "dotenv": "^17.4.2",
-    "@ardennguyen/zalo-agent-cli": "1.0.7"
+    "@ardennguyen/zalo-agent-cli": "1.0.8"
   },
   "publishConfig": {
     "access": "public"
