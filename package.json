@@ -20,7 +20,8 @@
     "start": "node mcp-server.js",
     "login": "zalo-agent login",
     "mcp": "node mcp-server.js",
-    "oa:init": "zalo-agent oa init"
+    "oa:init": "zalo-agent oa init",
+    "oa:refresh": "zalo-agent oa refresh"
   },
   "keywords": [
     "zalo",
