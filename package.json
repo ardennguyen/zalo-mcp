@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "dotenv": "^17.4.2",
-    "@ardennguyen/zalo-agent-cli": "1.0.8"
+    "@ardennguyen/zalo-agent-cli": "1.0.7"
   },
   "publishConfig": {
     "access": "public"
