@@ -76,7 +76,9 @@ if (authIndex !== -1) {
   }
 }
 
-console.error(`Starting Zalo MCP Server via: node ${args.join(' ')}`);
+// Never log the bearer token: it would end up in the systemd journal / client logs
+const loggedArgs = args.map((arg, i) => (args[i - 1] === '--auth' ? '***' : arg));
+console.error(`Starting Zalo MCP Server via: node ${loggedArgs.join(' ')}`);
 
 // Spawn the zalo-agent CLI in mcp mode using node directly (cross-platform)
 const child = spawn(process.execPath, args, {
