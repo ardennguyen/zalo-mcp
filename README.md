@@ -6,6 +6,8 @@
 
 Gói cài đặt độc lập **Model Context Protocol (MCP)** server cho Zalo. Môi trường đóng gói (sandbox) 1-click giúp AI agents (Claude Code, Cursor) tự động hóa Zalo Personal & Official Account mà không làm rác máy tính của bạn.
 
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
 **[Tiếng Việt](#bắt-đầu-nhanh)** | **[English](#english)**
 
 > [!TIP]
@@ -121,6 +123,16 @@ Thêm MCP server mới trong settings của Cursor:
 
 Hướng dẫn chi tiết cho tất cả lệnh, thiết lập MCP, cache cục bộ, Official Account API và nhiều hơn nữa — cả tiếng Việt lẫn tiếng Anh.
 
+## Giấy phép
+
+zalo-mcp © 2026 Arden Nguyen Duc Huy được cấp phép theo [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). Xem [LICENSE](LICENSE) và [NOTICE](NOTICE).
+
+- **Miễn phí cho mục đích phi thương mại**: cá nhân, học thuật, nghiên cứu. **Không cấp phép cho mục đích thương mại** — ví dụ dùng trong sản phẩm thương mại, để cung cấp dịch vụ có thu phí, hoặc trong hoạt động kinh doanh của một công ty. Muốn xin giấy phép thương mại, hãy [mở một issue](https://github.com/ardennguyen/zalo-mcp/issues).
+- **Ghi công**: khi chia sẻ dự án này hoặc một phần của nó (nguyên bản hay đã sửa đổi, kể cả bên trong dự án khác), hãy ghi công theo mẫu trong [NOTICE](NOTICE), nêu rõ bạn có sửa đổi hay không, và dẫn link giấy phép.
+- **Chia sẻ tương tự (ShareAlike)**: bản sửa đổi được chia sẻ phải dùng CC BY-NC-SA 4.0 (hoặc phiên bản mới hơn, hoặc giấy phép tương thích do Creative Commons liệt kê).
+- Các phần dẫn xuất từ phần mềm MIT — bản phân phối `zalo-mcp` gốc của PhucMPham — vẫn thuộc giấy phép MIT; xem [NOTICE](NOTICE). Gói này cài `@ardennguyen/zalo-agent-cli` từ npm; engine đó có `LICENSE` và `NOTICE` riêng.
+- Các phiên bản phát hành trước thay đổi này (1.0.16 trở về trước) được phát hành theo giấy phép MIT và giữ nguyên các điều khoản đó.
+
 ---
 
 
@@ -207,4 +219,11 @@ Detailed guides for all commands, MCP setup, local cache, Official Account API, 
 ---
 
 ## License
-[MIT](LICENSE)
+
+zalo-mcp © 2026 Arden Nguyen Duc Huy is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+- **Free for non-commercial use** (personal, academic, research). **Commercial use is not licensed** — for example in a commercial product, to provide paid services, or in a company's business operations. To request a commercial license, [open an issue](https://github.com/ardennguyen/zalo-mcp/issues).
+- **Credit required:** if you share this project or any part of it, as-is or modified (including inside another project), credit it as shown in [NOTICE](NOTICE), say whether you made changes, and link to the license.
+- **ShareAlike:** shared modifications must be released under CC BY-NC-SA 4.0 (or a later version, or a compatible license listed by Creative Commons).
+- Portions derived from MIT-licensed software — the original `zalo-mcp` distribution by PhucMPham — remain under the MIT License; see [NOTICE](NOTICE). This package installs `@ardennguyen/zalo-agent-cli` from npm; that engine carries its own `LICENSE` and `NOTICE`.
+- Versions published before this change (1.0.16 and earlier) were released under the MIT License and keep those terms.
