@@ -18,4 +18,5 @@ jobs:
 
       - run: git config --global url."https://github.com/".insteadOf "git@github.com:"
       - run: npm ci
+      - run: npm test
       - run: node mcp-server.js --help 2>&1 || true  # sanity check server loads
