@@ -81,6 +81,8 @@ Mọi thông tin xác thực đều được lưu cục bộ và an toàn trên 
 
 ## 🤖 Tích hợp AI Agent (MCP)
 
+Chọn tài khoản bằng `--account <ID>`: xem [hướng dẫn và điều kiện phát hành](docs/account-pinning.vi.md).
+
 Đảm bảo cấu hình AI client của bạn trỏ tới file `mcp-server.js` trong thư mục cài đặt `zalo-mcp`.
 
 ### 1. Claude Code
@@ -187,6 +189,8 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercont
 Refresh tokens anytime with: `npm run oa:refresh`
 
 ### 🤖 AI Agent Integration (MCP)
+
+Select an account with `--account <ID>`: see [usage and release prerequisites](docs/account-pinning.md).
 
 Configure your AI clients to run the server in stdio mode:
 

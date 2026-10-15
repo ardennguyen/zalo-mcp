@@ -12,11 +12,13 @@
     "zalo-mcp.sh",
     ".env.example",
     "README.md",
+    "docs/",
     "LICENSE",
     "NOTICE",
     "requirements.txt"
   ],
   "scripts": {
+    "test": "node --test tests/*.test.cjs",
     "start": "node mcp-server.js",
     "login": "zalo-agent login",
     "mcp": "node mcp-server.js",
@@ -43,7 +45,7 @@
   },
   "dependencies": {
     "dotenv": "^17.4.2",
-    "@ardennguyen/zalo-agent-cli": "2.0.0"
+    "@ardennguyen/zalo-agent-cli": "^2.0.1"
   },
   "publishConfig": {
     "access": "public"

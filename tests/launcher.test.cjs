@@ -1,0 +1,71 @@
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const { mkdtempSync, mkdirSync, copyFileSync, writeFileSync, rmSync } = require('node:fs');
+const { tmpdir } = require('node:os');
+const path = require('node:path');
+const { spawnSync } = require('node:child_process');
+
+// Run the real launcher against a disposable engine. No packages, credentials,
+// Zalo connection, or user config are needed or read.
+function run(args, engine = true, source = 'console.log(JSON.stringify(process.argv.slice(2)));') {
+  const dir = mkdtempSync(path.join(tmpdir(), 'zalo-wrapper-test-'));
+  try {
+    copyFileSync(path.join(__dirname, '..', 'mcp-server.js'), path.join(dir, 'mcp-server.js'));
+    if (engine) {
+      const cli = path.join(dir, 'node_modules', '@ardennguyen', 'zalo-agent-cli');
+      const bin = path.join(dir, 'node_modules', '.bin');
+      mkdirSync(cli, { recursive: true });
+      mkdirSync(bin, { recursive: true });
+      writeFileSync(path.join(bin, process.platform === 'win32' ? 'zalo-agent.cmd' : 'zalo-agent'), '');
+      writeFileSync(path.join(cli, 'package.json'), JSON.stringify({ bin: { 'zalo-agent': 'engine.cjs' } }));
+      writeFileSync(path.join(cli, 'engine.cjs'), source);
+    }
+    return spawnSync(process.execPath, [path.join(dir, 'mcp-server.js'), ...args], {
+      encoding: 'utf8', timeout: 10000, windowsHide: true,
+    });
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+for (const args of [['--account', '1234567890123456789'], ['--account=1234567890123456789']]) {
+  test(`forwards exact string ID with ${args[0]}`, () => {
+    const result = run(args);
+    assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(JSON.parse(result.stdout), ['mcp', 'start', '--account', '1234567890123456789']);
+  });
+}
+
+test('omitting account preserves engine default', () => {
+  const result = run([]);
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(JSON.parse(result.stdout), ['mcp', 'start']);
+});
+
+test('account composes with HTTP and masked authorization', () => {
+  const result = run(['--http', '4567', '--auth', 'test-token', '--account', '101']);
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(JSON.parse(result.stdout), ['mcp', 'start', '--account', '101', '--http', '4567', '--auth', 'test-token']);
+  assert.ok(!result.stderr.includes('test-token'));
+});
+
+for (const args of [
+  ['--account'], ['--account='], ['--account', '--http'], ['--account', 'alias'],
+  ['--account', '0'], ['--account', '-1'], ['--account', '01'], ['--account', '1.5'],
+  ['--account', '1e3'], ['--account', '101', '--account=202'],
+]) {
+  test(`refuses invalid account before install: ${JSON.stringify(args)}`, () => {
+    const result = run(args, false);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /full numeric account ID/);
+    assert.doesNotMatch(result.stderr, /Running npm install|Starting Zalo/);
+    assert.equal(result.stdout, '');
+  });
+}
+
+test('an engine rejecting the flag fails rather than retrying without it', () => {
+  const result = run(['--account', '101'], true, "console.error('unknown option --account'); process.exit(1);");
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /unknown option --account/);
+  assert.equal(result.stdout, '');
+});

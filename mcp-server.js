@@ -2,6 +2,21 @@ const { spawn, execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
+// Validate before dependency installation or authentication. IDs stay strings:
+// Zalo UIDs can exceed Number.MAX_SAFE_INTEGER. Never fall back to active.
+const accountArgs = process.argv.slice(2).filter(arg => arg === '--account' || arg.startsWith('--account='));
+let accountId;
+if (accountArgs.length) {
+  const option = accountArgs[0];
+  accountId = option === '--account'
+    ? process.argv[process.argv.indexOf('--account') + 1]
+    : option.slice('--account='.length);
+  if (accountArgs.length !== 1 || !/^[1-9][0-9]*$/.test(accountId || '')) {
+    console.error('--account requires one full numeric account ID (not a name or alias).');
+    process.exit(1);
+  }
+}
+
 // Load environment variables from local .env if it exists
 const envPath = path.join(__dirname, '.env');
 if (fs.existsSync(envPath)) {
@@ -51,6 +66,7 @@ const cliEntryPoint = path.join(cliDir, cliBinRelative);
 
 // Prepare arguments for the Zalo agent CLI
 const args = [cliEntryPoint, 'mcp', 'start'];
+if (accountId !== undefined) args.push('--account', accountId);
 
 // Check if user requested HTTP transport mode via arguments
 const httpIndex = process.argv.indexOf('--http');
