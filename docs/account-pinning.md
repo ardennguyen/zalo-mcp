@@ -24,15 +24,28 @@ for separate MCP processes. The engine owns credentials, locking, and reconnects
 
 ## Release prerequisite
 
-This wrapper still pins published engine **2.0.0**, which does not support the
-option. Account pinning requires the engine change in
+The wrapper accepts published engine **^2.0.1** (>=2.0.1, <3.0.0).
+As of 2026-10-15 npm's latest is 2.0.0; ^2.0.1 cannot be installed yet (ETARGET).
+The source labeled 2.0.1 does not include the option. Account pinning requires the engine change in
 [engine PR #3](https://github.com/ardennguyen/zalo-agent-cli/pull/3) to be merged,
-published, and the wrapper dependency updated to that published release. Until
-then, explicitly selecting an account fails at the engine; the wrapper never
-retries with the active account. No unpublished dependency is introduced here.
+published, and the installed engine updated to that published release. Until
+then, a fresh dependency install is blocked, and an older installed engine
+rejects the flag. The wrapper never retries with the active account. No
+unpublished tarball or Git branch is installed here.
 
-MCP tools, including any future sync tools, are implemented by the engine. The
-wrapper cannot expose a new tool until its engine pin is updated and released.
+MCP tools, including sync tools, are implemented by the engine. A compatible
+range allows newer 2.x releases but does not update an existing installation or
+lockfile automatically. `npm ci` uses the exact lockfile version.
+
+Release blocker: this contribution remains a draft while that dependency is
+unpublished. The existing package-lock.json is the old 2.0.0 snapshot, not a
+valid lock for the new range. Regenerate it from npm after the engine release,
+then verify installation before merging/releasing the wrapper. No lockfile
+integrity or unpublished version is fabricated here.
+
+Suggested upstream releases: engine **2.1.0** for the additive account/sync
+features, then wrapper **1.1.0** for account forwarding and the new dependency
+range. These are recommendations for the maintainer, not releases made here.
 
 ## Validation and rollout
 

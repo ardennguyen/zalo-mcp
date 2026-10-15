@@ -9,6 +9,10 @@ The engine remains responsible for account lookup, authentication, reconnects,
 and the MCP tool surface. No database or credential migration.
 
 Status: coded locally; 15 offline launcher tests passed. No deployment or live
-account test. The published engine pin stays at 2.0.0; the option requires a
-published version containing engine PR #3 and a subsequent wrapper pin update.
+account test. Engine dependency is ^2.0.1; the option requires an installed
+published version containing engine PR #3. Suggest engine 2.1.0 and wrapper
+1.1.0 releases after merge; no version is published here.
+Release blocker: npm latest verified as 2.0.0; generating a ^2.0.1 lockfile
+fails ETARGET. PR stays draft; regenerate the old lockfile after engine release
+and validate installation before merge.
 See [usage, architecture, validation and rollout](docs/account-pinning.md).
