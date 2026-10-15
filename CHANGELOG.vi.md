@@ -4,6 +4,11 @@
 
 ## Chưa phát hành — 2026-10-15
 
+- Bỏ file project-context gốc, giữ changelog. Thêm notes 1.1.0 và template tạo
+  PR version/lockfile trên GitHub-hosted runner trong release_notes/.
+- Mở CI cho v1.1.0. Chưa đổi được base PR cho tới khi maintainer upstream tạo
+  nhánh đó; contributor không có quyền push upstream.
+
 - Chuyển `--account <ID>` và `--account=<ID>` không ép kiểu số.
 - Từ chối ID sai/lặp trước khi cài hay đăng nhập; không thử lại bằng tài khoản
   mặc định khi engine từ chối tùy chọn.
