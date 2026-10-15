@@ -2,23 +2,21 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, v1.1.0]
   pull_request:
-    branches: [main]
+    branches: [main, v1.1.0]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20, 22]
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
 
       - run: git config --global url."https://github.com/".insteadOf "git@github.com:"
       - run: npm ci
+      - run: npm test
       - run: node mcp-server.js --help 2>&1 || true  # sanity check server loads
