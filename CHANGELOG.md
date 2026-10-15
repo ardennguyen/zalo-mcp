@@ -6,12 +6,13 @@
 
 - Remove root project-context files; keep changelog. Add proposed 1.1.0 notes
   and a GitHub-hosted version/lockfile PR template in release_notes/.
-- Enable CI for v1.1.0. Requested PR base remains blocked until an upstream
-  maintainer creates that branch; contributor has no upstream push permission.
+- Run CI on Node 22 only, matching the package's supported major version.
+  Upstream v1.1.0 exists and PR #1 targets it; correct the release preparation
+  README in both languages and regenerate the lockfile for published engine 2.1.0.
 
 - Forward `--account <ID>` and `--account=<ID>` without numeric conversion.
 - Reject invalid/duplicate IDs before installation or login; never retry using
   the default account if the engine rejects the flag.
 - Add 15 offline launcher tests. Accept engine ^2.0.1 instead of fixed 2.0.0;
-  account pinning still requires a future published engine containing it.
-- Recommend engine 2.1.0 and wrapper 1.1.0 upstream releases after merge.
+  published engine 2.1.0 provides account pinning and MCP sync tools.
+- Engine 2.1.0 is published; wrapper 1.1.0 remains a proposed release after merge.

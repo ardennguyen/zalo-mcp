@@ -21,9 +21,11 @@ không cần file project-context riêng ở gốc.
 3. Dán notes vào GitHub Release, bỏ dòng đề xuất sau khi xác nhận tính năng và
    kiểm thử đúng với tag. Chỉ nâng deploy bằng quy trình update wrapper đã hướng dẫn.
 
-Điểm chặn ngày 2026-10-15: upstream chưa có nhánh `v1.1.0`, contributor không có
-quyền push upstream. Maintainer có thể tạo từ `main` bằng giao diện nhánh GitHub,
-rồi đổi base PR #1. Không cần máy coding cục bộ.
+Đã xác minh ngày 2026-10-15: upstream có nhánh `v1.1.0` và PR #1 đã trỏ vào đó.
+Engine 2.1.0 đã phát hành trên npm, thỏa `^2.0.1`. Lockfile wrapper đã resolve
+engine 2.1.0; yêu cầu cài đặt, test launcher cùng CI thành công trước khi
+merge. CI dùng Node 22, khớp major thấp nhất package hỗ trợ. Không cần tạo nhánh
+hay máy coding của maintainer; vẫn cần chuẩn bị version wrapper trước khi tag.
 
 ## Đồng bộ lockfile
 

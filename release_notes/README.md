@@ -2,7 +2,7 @@
 
 [Tiếng Việt](README.vi.md)
 
-The proposed [1.1.0 notes](v1.1.0.md) follow upstream's latest published
+The proposed [1.1.0 notes](v1.1.0.md) follow upstream's published
 [1.0.16 notes](https://github.com/ardennguyen/zalo-mcp/releases/tag/v1.0.16):
 package/version heading, a short outcome, highlights, engine changes, upgrade,
 and limits. They are a draft, not a publication. Keep CHANGELOG.md for source
@@ -22,9 +22,12 @@ history; no separate root project-context file is needed.
    banner and confirming every listed feature/test applies to that tag. Upgrade
    existing deployments only through the documented wrapper update flow.
 
-Current blocker (2026-10-15): upstream has no `v1.1.0` branch and this contributor
-has no upstream push permission. A maintainer can create it from `main` in GitHub's
-branch UI; then PR #1 can be retargeted. No local coding PC is needed.
+Verified on 2026-10-15: upstream `v1.1.0` exists and PR #1 targets it. Engine
+2.1.0 is now published on npm and satisfies `^2.0.1`. The wrapper lockfile
+resolves engine 2.1.0; require successful installation,
+launcher tests, and CI before merging. CI uses Node 22, matching the package's
+minimum supported major version. No branch-creation step or maintainer coding
+PC is needed; the wrapper release version still needs preparation before tagging.
 
 ## Lockfile synchronization
 
