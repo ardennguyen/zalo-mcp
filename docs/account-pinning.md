@@ -49,8 +49,8 @@ at the same time:
 - **MCP server account pinning (`zalo-mcp --account <ID>`):** supported in
   `@ardennguyen/zalo-mcp` `>=2.0.0` with `@ardennguyen/zalo-agent-cli` `>=2.1.0`.
 - **CLI subcommand account pinning (`zalo-mcp --account <ID> <command>`):**
-  supported in `@ardennguyen/zalo-mcp` `>=2.0.1` with
-  `@ardennguyen/zalo-agent-cli` `>=2.1.1`.
+  supported in `@ardennguyen/zalo-mcp` `>=2.0.2` with
+  `@ardennguyen/zalo-agent-cli` `>=2.2.0`.
 
 Run `npm test` to verify launcher forwarding: tests start a copied launcher with
 a disposable fake engine, covering exact ID forwarding in both MCP server and

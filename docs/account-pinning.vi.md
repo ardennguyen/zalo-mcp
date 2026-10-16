@@ -49,7 +49,7 @@ Mỗi tiến trình chọn và khóa riêng một tài khoản (`<DATA_DIR>/<own
 - **Ghim tài khoản cho MCP server (`zalo-mcp --account <ID>`):** hỗ trợ từ
   `@ardennguyen/zalo-mcp` `>=2.0.0` cùng `@ardennguyen/zalo-agent-cli` `>=2.1.0`.
 - **Ghim tài khoản cho lệnh con CLI (`zalo-mcp --account <ID> <lệnh>`):** hỗ trợ
-  từ `@ardennguyen/zalo-mcp` `>=2.0.1` cùng `@ardennguyen/zalo-agent-cli` `>=2.1.1`.
+  từ `@ardennguyen/zalo-mcp` `>=2.0.2` cùng `@ardennguyen/zalo-agent-cli` `>=2.2.0`.
 
 Chạy `npm test` để kiểm tra launcher: bộ test khởi động bản sao launcher với
 engine giả trong thư mục tạm, kiểm tra chuyển tiếp ID ở cả chế độ MCP server và
