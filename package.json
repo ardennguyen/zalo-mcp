@@ -1,10 +1,13 @@
 {
   "name": "@ardennguyen/zalo-mcp",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Zalo Model Context Protocol (MCP) Server Integration",
   "author": "ardennguyen",
   "license": "CC-BY-NC-SA-4.0",
   "main": "mcp-server.js",
+  "bin": {
+    "zalo-mcp": "./mcp-server.js"
+  },
   "type": "commonjs",
   "files": [
     "mcp-server.js",
@@ -14,8 +17,7 @@
     "README.md",
     "docs/",
     "LICENSE",
-    "NOTICE",
-    "requirements.txt"
+    "NOTICE"
   ],
   "scripts": {
     "test": "node --test tests/*.test.cjs",
@@ -45,7 +47,7 @@
   },
   "dependencies": {
     "dotenv": "^17.4.2",
-    "@ardennguyen/zalo-agent-cli": "^2.0.1"
+    "@ardennguyen/zalo-agent-cli": "^2.1.0"
   },
   "publishConfig": {
     "access": "public"

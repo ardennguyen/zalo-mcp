@@ -26,7 +26,6 @@ function Run-Install {
     $files = @(
         "package.json",
         "mcp-server.js",
-        "requirements.txt",
         "README.md",
         ".env.example",
         "zalo-mcp.sh",
@@ -56,14 +55,16 @@ function Run-Clean {
     Write-Host "===================================================" -ForegroundColor Cyan
     Write-Host ""
     
-    Write-Host "[1/2] Removing Node.js dependencies (node_modules)..." -ForegroundColor Yellow
+    Write-Host "[1/2] Unlinking global zalo-mcp CLI command..." -ForegroundColor Yellow
+    npm unlink -g @ardennguyen/zalo-mcp 2>&1 | Out-Null
+    Write-Host "Global CLI command unlinked.`n" -ForegroundColor Green
+
+    Write-Host "[2/2] Removing Node.js dependencies (node_modules)..." -ForegroundColor Yellow
     if (Test-Path "node_modules") { Remove-Item -Recurse -Force "node_modules" }
     if (Test-Path "package-lock.json") { Remove-Item -Force "package-lock.json" }
-    Write-Host "Node dependencies removed.`n" -ForegroundColor Green
-    
-    Write-Host "[2/2] Removing Python environment (venv)..." -ForegroundColor Yellow
     if (Test-Path "venv") { Remove-Item -Recurse -Force "venv" }
-    Write-Host "Python environment removed.`n" -ForegroundColor Green
+    if (Test-Path "requirements.txt") { Remove-Item -Force "requirements.txt" }
+    Write-Host "Dependencies removed.`n" -ForegroundColor Green
     
     Write-Host "===================================================" -ForegroundColor Cyan
     Write-Host "  Cleanup Complete!" -ForegroundColor Cyan
@@ -101,6 +102,7 @@ function Run-Init {
         Write-Host "[CLEAN] Removing existing node_modules and package-lock.json..." -ForegroundColor Magenta
         if (Test-Path "node_modules") { Remove-Item -Recurse -Force "node_modules" }
         if (Test-Path "package-lock.json") { Remove-Item -Force "package-lock.json" }
+        if (Test-Path "venv") { Remove-Item -Recurse -Force "venv" }
     }
     
     Write-Host "[2/4] Installing Node.js dependencies locally..." -ForegroundColor Yellow
@@ -111,43 +113,13 @@ function Run-Init {
     }
     Write-Host "Node.js dependencies installed successfully.`n" -ForegroundColor Green
     
-    # 3. Optional Python virtual environment setup
-    Write-Host "[3/4] Checking for Python to set up optional reporting environment..." -ForegroundColor Yellow
-    try {
-        $null = python --version 2>&1
-        $pythonFound = $true
-    } catch {
-        $pythonFound = $false
-    }
-    
-    if ($pythonFound -and $LASTEXITCODE -eq 0) {
-        Write-Host "Python detected. Setting up isolated virtual environment [venv]..."
-        if ($clean) {
-            Write-Host "[CLEAN] Removing existing venv..." -ForegroundColor Magenta
-            if (Test-Path "venv") { Remove-Item -Recurse -Force "venv" }
-        }
-        
-        if (!(Test-Path "venv")) {
-            python -m venv venv
-            if ($LASTEXITCODE -ne 0) {
-                Write-Host "[WARNING] Failed to create virtual environment. Continuing without venv." -ForegroundColor Yellow
-                $pythonFound = $false
-            }
-        }
-        
-        if ($pythonFound) {
-            Write-Host "Activating venv and installing Python dependencies..."
-            & ".\venv\Scripts\python.exe" -m pip install --upgrade pip | Out-Null
-            & ".\venv\Scripts\pip.exe" install -r requirements.txt
-            if ($LASTEXITCODE -ne 0) {
-                Write-Host "[WARNING] Some python dependencies failed to install." -ForegroundColor Yellow
-            }
-            Write-Host "Python environment is set up.`n" -ForegroundColor Green
-        }
+    # 3. Link global zalo-mcp CLI command
+    Write-Host "[3/4] Linking global 'zalo-mcp' CLI command..." -ForegroundColor Yellow
+    npm link
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[WARNING] Could not link global 'zalo-mcp' command. You can still use 'node mcp-server.js' or 'npm run' inside this folder.`n" -ForegroundColor Yellow
     } else {
-        Write-Host "[NOTE] Python was not found on your system." -ForegroundColor DarkGray
-        Write-Host "Skipping python virtual environment setup." -ForegroundColor DarkGray
-        Write-Host "[This is optional and only required if you run custom Python report scripts. The core Zalo MCP runs fine.]`n" -ForegroundColor DarkGray
+        Write-Host "Global 'zalo-mcp' command is now available in PowerShell/CMD!`n" -ForegroundColor Green
     }
     
     # 4. Copy and Configure .env
@@ -186,9 +158,9 @@ function Run-Init {
     Write-Host "===================================================" -ForegroundColor Cyan
     Write-Host "`nNext Steps:"
     Write-Host "1. Scan QR code to login your Personal Zalo Account:" -ForegroundColor White
-    Write-Host "   npm run login`n" -ForegroundColor DarkGray
+    Write-Host "   zalo-mcp login   (or: npm run login)`n" -ForegroundColor DarkGray
     Write-Host "2. [Optional] Setup your Zalo Official Account:" -ForegroundColor White
-    Write-Host "   npm run oa:init -- --app-id [ID] --secret [KEY]`n" -ForegroundColor DarkGray
+    Write-Host "   zalo-mcp oa init --app-id [ID] --secret [KEY]`n" -ForegroundColor DarkGray
     Write-Host "3. Add this server to your Claude Code or Cursor config." -ForegroundColor White
     Write-Host "   Read README.md for details.`n" -ForegroundColor DarkGray
 }
@@ -205,7 +177,7 @@ function Run-Update {
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  -> [WARNING] Could not download @ardennguyen/zalo-mcp from npm. (continuing)" -ForegroundColor Yellow
     } else {
-        $selfFiles = @("zalo-mcp.ps1", "zalo-mcp.sh", "mcp-server.js", "package.json", "requirements.txt")
+        $selfFiles = @("zalo-mcp.ps1", "zalo-mcp.sh", "mcp-server.js", "package.json")
         foreach ($file in $selfFiles) {
             $sourcePath = ".\node_modules\@ardennguyen\zalo-mcp\$file"
             if (Test-Path $sourcePath) {
@@ -216,11 +188,13 @@ function Run-Update {
     }
     Write-Host "Scripts updated.`n" -ForegroundColor Green
 
-    # Step 1.5: Ensure .env exists
+    # Step 1.5: Ensure .env exists and remove legacy Python artifacts if present
     if (!(Test-Path ".env") -and (Test-Path ".env.example")) {
         Write-Host "Restoring missing .env file from template..." -ForegroundColor Yellow
         Copy-Item ".env.example" ".env"
     }
+    if (Test-Path "venv") { Remove-Item -Recurse -Force "venv" }
+    if (Test-Path "requirements.txt") { Remove-Item -Force "requirements.txt" }
 
     # Step 2: Update @ardennguyen/zalo-agent-cli from npm registry
     Write-Host "[2/3] Updating @ardennguyen/zalo-agent-cli from npm registry..." -ForegroundColor Yellow
@@ -231,17 +205,13 @@ function Run-Update {
     }
     Write-Host "@ardennguyen/zalo-agent-cli updated successfully.`n" -ForegroundColor Green
 
-    # Step 3: Update Python dependencies (if venv exists)
-    Write-Host "[3/3] Updating Python dependencies (if virtual environment exists)..." -ForegroundColor Yellow
-    if (Test-Path "venv") {
-        Write-Host "Virtual environment detected. Updating packages..."
-        & ".\venv\Scripts\python.exe" -m pip install --upgrade pip | Out-Null
-        if (Test-Path "requirements.txt") {
-            & ".\venv\Scripts\pip.exe" install --upgrade -r requirements.txt
-        }
-        Write-Host "Python dependencies updated successfully.`n" -ForegroundColor Green
+    # Step 3: Refresh global zalo-mcp CLI link
+    Write-Host "[3/3] Refreshing global 'zalo-mcp' CLI command link..." -ForegroundColor Yellow
+    npm link
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[WARNING] Could not link global 'zalo-mcp' command.`n" -ForegroundColor Yellow
     } else {
-        Write-Host "No python virtual environment found. Skipping python update.`n" -ForegroundColor DarkGray
+        Write-Host "Global 'zalo-mcp' command updated!`n" -ForegroundColor Green
     }
 
     Write-Host "===================================================" -ForegroundColor Cyan
@@ -256,9 +226,9 @@ if ([string]::IsNullOrWhiteSpace($Action)) {
     Write-Host ""
     Write-Host "Commands:"
     Write-Host "  install Install the Zalo MCP Server from GitHub into a new directory"
-    Write-Host "  init    Initialize the environment (install Node/Python deps, config .env)"
-    Write-Host "  update  Update existing Node/Python dependencies"
-    Write-Host "  clean   Remove all downloaded dependencies (node_modules, venv)"
+    Write-Host "  init    Initialize the environment (install Node deps, link CLI, config .env)"
+    Write-Host "  update  Update existing Node dependencies and refresh CLI link"
+    Write-Host "  clean   Remove all downloaded dependencies (node_modules) and unlink CLI"
     Write-Host ""
     Write-Host "Options (for init):"
     Write-Host "  -clean         Remove existing dependencies before initialization"
