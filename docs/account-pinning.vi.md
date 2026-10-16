@@ -1,56 +1,56 @@
-# Chọn tài khoản
+# Chọn tài khoản (`--account <ID>`)
 
 [English](account-pinning.md)
 
-Launcher chuyển `--account <ID>` hoặc `--account=<ID>` xuống
-`zalo-agent mcp start`. Dùng toàn bộ ID số từ `zalo-agent account list`, giữ dạng
-chuỗi. Tên, alias, số có số 0 đầu, thiếu giá trị hoặc lặp tùy chọn bị từ chối
-trước khi cài đặt hay đăng nhập. Bỏ tùy chọn giữ cách chọn mặc định của engine.
-Không thay đổi tài khoản active trong registry.
+Launcher `zalo-mcp` chuyển tiếp `--account <ID>` hoặc `--account=<ID>` cả khi
+khởi động MCP server (`zalo-agent mcp start`) lẫn khi chạy bất kỳ lệnh con CLI
+nào (`zalo-mcp --account <ID> <lệnh> ...`). Dùng toàn bộ ID số từ
+`zalo-mcp account list`, giữ dạng chuỗi. Tên, alias, số có số 0 đầu, thiếu giá
+trị hoặc lặp tùy chọn bị từ chối trước khi cài đặt hay đăng nhập. Bỏ tùy chọn
+sẽ giữ cách chọn mặc định của engine. Truyền `--account <ID>` không bao giờ làm
+thay đổi tài khoản active chung trong `accounts.json`.
 
-```json
-{
-  "mcpServers": {
-    "zalo-work": {
-      "command": "node",
-      "args": ["/absolute/path/zalo-mcp/mcp-server.js", "--account", "101"]
-    }
-  }
-}
-```
+## Chạy nhiều tài khoản live cùng lúc
 
-`101` là ví dụ giả. Mỗi process chọn một tài khoản; dùng ID khác nhau cho các
-process MCP riêng. Engine quản lý credentials, khóa và reconnect.
+Mỗi tiến trình chọn và khóa riêng một tài khoản (`<DATA_DIR>/<ownId>/zalo.db`,
+`media/`, `daemon.lock`, `daemon-channel.json`). Để duy trì nhiều tài khoản hoạt
+động đồng thời:
 
-## Điều kiện phát hành
+1. **MCP chế độ stdio (Claude Code / Cursor):** khai báo mỗi tài khoản một mục
+   trong `mcpServers` với các ID khác nhau (`101` và `202` dưới đây là ví dụ giả):
+   ```json
+   {
+     "mcpServers": {
+       "zalo-work": {
+         "command": "zalo-mcp",
+         "args": ["--account", "101"]
+       },
+       "zalo-shop": {
+         "command": "zalo-mcp",
+         "args": ["--account", "202"]
+       }
+     }
+   }
+   ```
+2. **MCP chế độ HTTP (VPS):** chạy mỗi tài khoản một tiến trình trên port riêng:
+   ```bash
+   zalo-mcp --account 101 --http 3847 --auth <token-1> --host 0.0.0.0
+   zalo-mcp --account 202 --http 3848 --auth <token-2> --host 0.0.0.0
+   ```
+3. **Chuyển tiếp lệnh CLI:** nhắm vào đúng tài khoản cho từng lệnh CLI mà không
+   gây tranh chấp `accounts.json`:
+   ```bash
+   zalo-mcp --account 101 msg list --json
+   zalo-mcp --account 202 sync --days 7
+   ```
 
-Wrapper nhận engine đã phát hành **^2.0.1** (>=2.0.1, <3.0.0).
-Ngày 2026-10-15, npm mới có 2.0.0; chưa cài được ^2.0.1 (ETARGET).
-Source mang số 2.0.1 chưa có tùy chọn này.
-Cần merge [engine PR #3](https://github.com/ardennguyen/zalo-agent-cli/pull/3),
-phát hành engine rồi cập nhật engine đã cài sang bản đã phát hành đó.
-Trước thời điểm này, cài dependency mới sẽ bị chặn; engine cũ đã cài từ chối
-tùy chọn. Wrapper không thử lại bằng tài khoản active. Không cài tarball hay
-Git branch chưa phát hành.
+## Yêu cầu phiên bản và kiểm thử
 
-Các tool MCP, kể cả sync, thuộc engine. Dải phiên bản cho phép nhận các bản 2.x
-mới nhưng không tự cập nhật bản đã cài hay lockfile. `npm ci` dùng đúng phiên
-bản trong lockfile.
+- **Ghim tài khoản cho MCP server (`zalo-mcp --account <ID>`):** hỗ trợ từ
+  `@ardennguyen/zalo-mcp` `>=2.0.0` cùng `@ardennguyen/zalo-agent-cli` `>=2.1.0`.
+- **Ghim tài khoản cho lệnh con CLI (`zalo-mcp --account <ID> <lệnh>`):** hỗ trợ
+  từ `@ardennguyen/zalo-mcp` `>=2.0.1` cùng `@ardennguyen/zalo-agent-cli` `>=2.1.1`.
 
-Điều kiện chặn phát hành: PR giữ draft khi dependency chưa được phát hành.
-package-lock.json hiện có là snapshot 2.0.0 cũ, chưa hợp lệ với dải mới. Cần
-tạo lại từ npm sau khi phát hành engine, kiểm tra cài đặt rồi mới merge/phát
-hành wrapper. Không bịa integrity hay phiên bản chưa phát hành trong lockfile.
-
-Đề xuất upstream phát hành engine **2.1.0** cho tính năng tài khoản/sync mới,
-rồi wrapper **1.1.0** cho chuyển tiếp tài khoản và dải dependency mới. Đây là
-khuyến nghị cho maintainer, không phải phiên bản đã phát hành trong công việc này.
-
-## Kiểm thử và triển khai
-
-Chạy `npm test`: test khởi động bản sao launcher với engine giả trong thư mục
-tạm, kiểm tra giữ nguyên ID, kết hợp HTTP/auth và từ chối an toàn. Test không
-đăng nhập hay đọc dữ liệu tài khoản. Bản deploy hiện có giữ nguyên. Khi đủ điều
-kiện phát hành, cập nhật bằng `zalo-mcp.ps1 update` hoặc `bash zalo-mcp.sh update`,
-khởi động lại MCP client và xác minh tài khoản được chọn. Rollback cấu hình:
-xóa `--account` cùng giá trị rồi khởi động lại để dùng cách chọn mặc định.
+Chạy `npm test` để kiểm tra launcher: bộ test khởi động bản sao launcher với
+engine giả trong thư mục tạm, kiểm tra chuyển tiếp ID ở cả chế độ MCP server và
+chế độ CLI pass-through, kết hợp HTTP/auth và từ chối an toàn khi tham số sai.

@@ -1,58 +1,57 @@
-# Account selection
+# Account selection (`--account <ID>`)
 
 [Tiếng Việt](account-pinning.vi.md)
 
-The launcher forwards `--account <ID>` or `--account=<ID>` to
-`zalo-agent mcp start`. Use the complete numeric ID from `zalo-agent account list`,
-as a string. Names, aliases, leading zeros, missing values, and duplicate options
-are rejected before installation or login. Omitting the option preserves the
-engine's default selection. It does not change the active account registry.
+The `zalo-mcp` launcher forwards `--account <ID>` or `--account=<ID>` both when
+starting the MCP server (`zalo-agent mcp start`) and when running any CLI
+subcommand (`zalo-mcp --account <ID> <command> ...`). Use the complete numeric
+ID from `zalo-mcp account list`, as a string. Names, aliases, leading zeros,
+missing values, and duplicate options are rejected before installation or login.
+Omitting the option preserves the engine's default selection. Passing
+`--account <ID>` never modifies the shared active account in `accounts.json`.
 
-```json
-{
-  "mcpServers": {
-    "zalo-work": {
-      "command": "node",
-      "args": ["/absolute/path/zalo-mcp/mcp-server.js", "--account", "101"]
-    }
-  }
-}
-```
+## Running multiple live accounts simultaneously
 
-`101` is a synthetic example. Each process selects one account; use distinct IDs
-for separate MCP processes. The engine owns credentials, locking, and reconnects.
+Each process selects and locks one account (`<DATA_DIR>/<ownId>/zalo.db`,
+`media/`, `daemon.lock`, `daemon-channel.json`). To keep multiple accounts live
+at the same time:
 
-## Release prerequisite
+1. **stdio MCP (Claude Code / Cursor):** configure one `mcpServers` entry per
+   account with distinct numeric IDs (`101` and `202` below are synthetic examples):
+   ```json
+   {
+     "mcpServers": {
+       "zalo-work": {
+         "command": "zalo-mcp",
+         "args": ["--account", "101"]
+       },
+       "zalo-shop": {
+         "command": "zalo-mcp",
+         "args": ["--account", "202"]
+       }
+     }
+   }
+   ```
+2. **HTTP MCP (VPS):** run one process per account on separate ports:
+   ```bash
+   zalo-mcp --account 101 --http 3847 --auth <token-1> --host 0.0.0.0
+   zalo-mcp --account 202 --http 3848 --auth <token-2> --host 0.0.0.0
+   ```
+3. **CLI pass-through:** target any specific account on one-shot CLI commands
+   without racing on `accounts.json`:
+   ```bash
+   zalo-mcp --account 101 msg list --json
+   zalo-mcp --account 202 sync --days 7
+   ```
 
-The wrapper accepts published engine **^2.0.1** (>=2.0.1, <3.0.0).
-As of 2026-10-15 npm's latest is 2.0.0; ^2.0.1 cannot be installed yet (ETARGET).
-The source labeled 2.0.1 does not include the option. Account pinning requires the engine change in
-[engine PR #3](https://github.com/ardennguyen/zalo-agent-cli/pull/3) to be merged,
-published, and the installed engine updated to that published release. Until
-then, a fresh dependency install is blocked, and an older installed engine
-rejects the flag. The wrapper never retries with the active account. No
-unpublished tarball or Git branch is installed here.
+## Engine requirement and validation
 
-MCP tools, including sync tools, are implemented by the engine. A compatible
-range allows newer 2.x releases but does not update an existing installation or
-lockfile automatically. `npm ci` uses the exact lockfile version.
+- **MCP server account pinning (`zalo-mcp --account <ID>`):** supported in
+  `@ardennguyen/zalo-mcp` `>=2.0.0` with `@ardennguyen/zalo-agent-cli` `>=2.1.0`.
+- **CLI subcommand account pinning (`zalo-mcp --account <ID> <command>`):**
+  supported in `@ardennguyen/zalo-mcp` `>=2.0.1` with
+  `@ardennguyen/zalo-agent-cli` `>=2.1.1`.
 
-Release blocker: this contribution remains a draft while that dependency is
-unpublished. The existing package-lock.json is the old 2.0.0 snapshot, not a
-valid lock for the new range. Regenerate it from npm after the engine release,
-then verify installation before merging/releasing the wrapper. No lockfile
-integrity or unpublished version is fabricated here.
-
-Suggested upstream releases: engine **2.1.0** for the additive account/sync
-features, then wrapper **1.1.0** for account forwarding and the new dependency
-range. These are recommendations for the maintainer, not releases made here.
-
-## Validation and rollout
-
-Run `npm test`: tests start a copied launcher with a disposable fake engine,
-cover exact ID forwarding, HTTP/auth composition and fail-closed behavior. They
-do not log in or read account data. Existing deployments are unchanged. After
-the published prerequisites, update using `zalo-mcp.ps1 update` or
-`bash zalo-mcp.sh update`, restart the MCP client, and verify the selected account.
-To roll back configuration, remove `--account` and its value, then restart; this
-returns to the engine default account selection.
+Run `npm test` to verify launcher forwarding: tests start a copied launcher with
+a disposable fake engine, covering exact ID forwarding in both MCP server and
+CLI pass-through modes, HTTP/auth composition, and fail-closed validation.

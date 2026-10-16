@@ -27,6 +27,13 @@ function findFirstCommandOrFlag(argv) {
     if ([...GLOBAL_VALUE_FLAGS].some(f => token.startsWith(`${f}=`))) {
       continue;
     }
+    if (token === '--account' && /^[1-9][0-9]*$/.test(argv[i + 1] || '')) {
+      i++;
+      continue;
+    }
+    if (token.startsWith('--account=') && /^[1-9][0-9]*$/.test(token.slice('--account='.length))) {
+      continue;
+    }
     return token;
   }
   return undefined;

@@ -83,6 +83,8 @@ for (const args of [
   ['login'],
   ['--data-dir', '/mnt/db', '--credentials-dir', '/mnt/creds', 'login'],
   ['--config-dir=/etc/zalo', '--json', 'account', 'list'],
+  ['--account', '101', 'msg', 'list', '--json'],
+  ['--account=202', 'status'],
   ['msg', 'list', '--json'],
   ['oa', 'init', '--app-id', '123', '--secret', 'abc'],
   ['oa', 'refresh'],

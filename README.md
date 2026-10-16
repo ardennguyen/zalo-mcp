@@ -68,12 +68,14 @@ Sau khi cài đặt (bằng Cách 1 hoặc Cách 2), bạn có thể chạy `zal
 ```powershell
 # Khởi chạy MCP server (mặc định: stdio, hoặc thêm --http 3847)
 zalo-mcp
-zalo-mcp --http 3847 --auth <token> --account <ID>
+zalo-mcp --account <ID>
+zalo-mcp --http 3847 --auth <token> --account <ID> --host 0.0.0.0
 
-# Chuyển tiếp mọi lệnh CLI của zalo-agent-cli
+# Chuyển tiếp mọi lệnh CLI của zalo-agent-cli (hỗ trợ --account <ID> cho từng lệnh)
 zalo-mcp login
-zalo-mcp msg list
-zalo-mcp listen
+zalo-mcp account list
+zalo-mcp --account <ID> msg list --json
+zalo-mcp --account <ID> listen
 zalo-mcp oa init --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
 zalo-mcp --help
 ```
@@ -112,13 +114,11 @@ Mọi thông tin xác thực đều được lưu cục bộ và an toàn trên 
 
 ## 🤖 Tích hợp AI Agent (MCP)
 
-Chọn tài khoản bằng `--account <ID>`: xem [hướng dẫn và điều kiện phát hành](docs/account-pinning.vi.md).
-
-Khi chạy `zalo-mcp` (hoặc `node mcp-server.js`) **không có tên lệnh con** (chỉ kèm các cờ như `--account`, `--http`, `--auth`, `--host`, `--config`), chương trình sẽ tự động khởi chạy `zalo-agent mcp start`.
+Khi chạy `zalo-mcp` (hoặc `node mcp-server.js`) **không có tên lệnh con** (chỉ kèm các cờ như `--account`, `--http`, `--auth`, `--host`, `--config`, `--no-self-heal`, `--no-delivered-receipts`), chương trình sẽ tự động khởi chạy `zalo-agent mcp start`. Xem chi tiết [Ghim tài khoản (`--account <ID>`)](docs/account-pinning.vi.md).
 
 ### 1. Claude Code (`~/.claude/settings.json`)
 
-**Sử dụng lệnh `zalo-mcp` toàn cục:**
+**Sử dụng lệnh `zalo-mcp` toàn cục (1 tài khoản):**
 ```json
 {
   "mcpServers": {
@@ -129,6 +129,24 @@ Khi chạy `zalo-mcp` (hoặc `node mcp-server.js`) **không có tên lệnh con
   }
 }
 ```
+
+**Chạy nhiều tài khoản Zalo live cùng lúc (Multi-Account):**
+Mỗi tài khoản có database (`zalo.db`), thư mục media và `daemon.lock` tách biệt. Khai báo mỗi tài khoản là một MCP server kèm `--account <ID>` (lấy ID từ `zalo-mcp account list`) — cả hai tài khoản sẽ hoạt động song song mà không ghi đè `accounts.json`:
+```json
+{
+  "mcpServers": {
+    "zalo-shop-a": {
+      "command": "zalo-mcp",
+      "args": ["--account", "101"]
+    },
+    "zalo-shop-b": {
+      "command": "zalo-mcp",
+      "args": ["--account", "202"]
+    }
+  }
+}
+```
+*(Trên VPS chạy HTTP mode, khởi chạy mỗi tài khoản trên một port riêng: `zalo-mcp --account <ID> --http 3847 --auth <token> --host 0.0.0.0`. Khi gọi lệnh CLI song song, truyền `zalo-mcp --account <ID> <lệnh>` hoặc đặt biến `ZALO_ACCOUNT=<ID>`.)*
 
 **Hoặc trỏ trực tiếp tới thư mục cài đặt 1-click:**
 ```json
@@ -147,7 +165,7 @@ Khi chạy `zalo-mcp` (hoặc `node mcp-server.js`) **không có tên lệnh con
 Thêm MCP server mới trong settings của Cursor:
 *   **Name:** `zalo`
 *   **Type:** `stdio`
-*   **Command:** `zalo-mcp` *(hoặc `node /đường/dẫn/tuyệt/đối/zalo-mcp/mcp-server.js`)*
+*   **Command:** `zalo-mcp` *(hoặc `zalo-mcp --account <ID>`, hoặc `node /đường/dẫn/tuyệt/đối/zalo-mcp/mcp-server.js`)*
 
 ---
 
@@ -237,12 +255,14 @@ Once installed (via Option 1 or Option 2), you can run `zalo-mcp` directly from 
 ```powershell
 # Start the MCP server (default: stdio, or pass --http 3847)
 zalo-mcp
-zalo-mcp --http 3847 --auth <token> --account <ID>
+zalo-mcp --account <ID>
+zalo-mcp --http 3847 --auth <token> --account <ID> --host 0.0.0.0
 
-# Pass any zalo-agent-cli command and arguments right through
+# Pass any zalo-agent-cli command and arguments right through (with optional --account <ID>)
 zalo-mcp login
-zalo-mcp msg list
-zalo-mcp listen
+zalo-mcp account list
+zalo-mcp --account <ID> msg list --json
+zalo-mcp --account <ID> listen
 zalo-mcp oa init --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
 zalo-mcp --help
 ```
@@ -275,13 +295,11 @@ Refresh tokens anytime with: `zalo-mcp oa refresh` (or `npm run oa:refresh`).
 
 ### 🤖 AI Agent Integration (MCP)
 
-Select an account with `--account <ID>`: see [usage and release prerequisites](docs/account-pinning.md).
-
-When invoked with **no subcommand** (or only MCP server flags such as `--account`, `--http`, `--auth`, `--host`, `--config`), `zalo-mcp` starts the MCP server (`zalo-agent mcp start`).
+When invoked with **no subcommand** (or only MCP server flags such as `--account`, `--http`, `--auth`, `--host`, `--config`, `--no-self-heal`, `--no-delivered-receipts`), `zalo-mcp` starts the MCP server (`zalo-agent mcp start`). See [Account Pinning (`--account <ID>`)](docs/account-pinning.md) for details.
 
 **Claude Code (`~/.claude/settings.json`):**
 
-*Using the global `zalo-mcp` command:*
+*Using the global `zalo-mcp` command (single account):*
 ```json
 {
   "mcpServers": {
@@ -292,6 +310,24 @@ When invoked with **no subcommand** (or only MCP server flags such as `--account
   }
 }
 ```
+
+*Running multiple live Zalo accounts simultaneously (Multi-Account):*
+Each account has its own isolated SQLite cache (`zalo.db`), media folder, and `daemon.lock`. Declare one `mcpServers` entry per account with `--account <ID>` (from `zalo-mcp account list`) — both accounts run live in parallel without mutating `accounts.json`:
+```json
+{
+  "mcpServers": {
+    "zalo-shop-a": {
+      "command": "zalo-mcp",
+      "args": ["--account", "101"]
+    },
+    "zalo-shop-b": {
+      "command": "zalo-mcp",
+      "args": ["--account", "202"]
+    }
+  }
+}
+```
+*(For HTTP mode on a VPS, run each account on its own port: `zalo-mcp --account <ID> --http 3847 --auth <token> --host 0.0.0.0`. For concurrent CLI calls, pass `zalo-mcp --account <ID> <command>` or set `ZALO_ACCOUNT=<ID>`.)*
 
 *Or pointing directly to the 1-click deployment directory:*
 ```json
@@ -306,7 +342,7 @@ When invoked with **no subcommand** (or only MCP server flags such as `--account
 }
 ```
 
-**Cursor:** Add new MCP server (`stdio`) -> `zalo-mcp` *(or `node /absolute/path/to/zalo-mcp/mcp-server.js`)*.
+**Cursor:** Add new MCP server (`stdio`) -> `zalo-mcp` *(or `zalo-mcp --account <ID>`, or `node /absolute/path/to/zalo-mcp/mcp-server.js`)*.
 
 ### 🛠️ Management Commands
 
