@@ -49,6 +49,34 @@ test('account composes with HTTP and masked authorization', () => {
   assert.ok(!result.stderr.includes('test-token'));
 });
 
+test('forwards additional mcp start flags (--host, --config, --no-self-heal)', () => {
+  const result = run(['--http', '--host', '0.0.0.0', '--config', '/tmp/mcp.json', '--no-self-heal']);
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(
+    JSON.parse(result.stdout),
+    ['mcp', 'start', '--http', '3847', '--host', '0.0.0.0', '--config', '/tmp/mcp.json', '--no-self-heal']
+  );
+});
+
+for (const args of [
+  ['login'],
+  ['msg', 'list', '--json'],
+  ['oa', 'init', '--app-id', '123', '--secret', 'abc'],
+  ['oa', 'refresh'],
+  ['listen', '--account', '101'],
+  ['mcp', 'start', '--http', '3847'],
+  ['--help'],
+  ['-h'],
+  ['--version'],
+  ['-V'],
+]) {
+  test(`passes CLI commands and flags through verbatim: ${JSON.stringify(args)}`, () => {
+    const result = run(args);
+    assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(JSON.parse(result.stdout), args);
+  });
+}
+
 for (const args of [
   ['--account'], ['--account='], ['--account', '--http'], ['--account', 'alias'],
   ['--account', '0'], ['--account', '-1'], ['--account', '01'], ['--account', '1.5'],

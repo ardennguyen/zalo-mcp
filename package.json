@@ -5,6 +5,9 @@
   "author": "ardennguyen",
   "license": "CC-BY-NC-SA-4.0",
   "main": "mcp-server.js",
+  "bin": {
+    "zalo-mcp": "./mcp-server.js"
+  },
   "type": "commonjs",
   "files": [
     "mcp-server.js",
