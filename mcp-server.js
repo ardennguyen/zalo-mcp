@@ -8,6 +8,7 @@ const userArgs = process.argv.slice(2);
 // Global flags registered on the root zalo-agent program that can precede either
 // a CLI subcommand (`zalo-mcp --data-dir /mnt/db login`) or MCP server flags.
 const GLOBAL_VALUE_FLAGS = new Set([
+  '--env-file',
   '--config-dir',
   '--credentials-dir',
   '--data-dir',
