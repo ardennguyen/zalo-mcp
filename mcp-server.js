@@ -5,10 +5,36 @@ const fs = require('fs');
 
 const userArgs = process.argv.slice(2);
 
+// Global flags registered on the root zalo-agent program that can precede either
+// a CLI subcommand (`zalo-mcp --data-dir /mnt/db login`) or MCP server flags.
+const GLOBAL_VALUE_FLAGS = new Set([
+  '--config-dir',
+  '--credentials-dir',
+  '--data-dir',
+  '--media-dir',
+  '--oa-dir',
+]);
+
+function findFirstCommandOrFlag(argv) {
+  for (let i = 0; i < argv.length; i++) {
+    const token = argv[i];
+    if (token === '--json') continue;
+    if (GLOBAL_VALUE_FLAGS.has(token)) {
+      i++; // skip the directory value
+      continue;
+    }
+    if ([...GLOBAL_VALUE_FLAGS].some(f => token.startsWith(`${f}=`))) {
+      continue;
+    }
+    return token;
+  }
+  return undefined;
+}
+
 // Determine whether invocation is MCP server mode (no args or only MCP server flags)
 // vs. CLI pass-through mode (subcommands like `login`, `msg`, `oa`, `listen`, `mcp`,
 // or top-level help/version flags).
-const firstArg = userArgs[0];
+const firstArg = findFirstCommandOrFlag(userArgs);
 const isMcpServerMode = !firstArg || (
   firstArg.startsWith('-') &&
   !['-h', '--help', '-V', '--version'].includes(firstArg)

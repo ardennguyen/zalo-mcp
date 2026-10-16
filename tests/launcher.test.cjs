@@ -49,17 +49,40 @@ test('account composes with HTTP and masked authorization', () => {
   assert.ok(!result.stderr.includes('test-token'));
 });
 
-test('forwards additional mcp start flags (--host, --config, --no-self-heal)', () => {
-  const result = run(['--http', '--host', '0.0.0.0', '--config', '/tmp/mcp.json', '--no-self-heal']);
+test('forwards additional mcp start and global storage flags (--host, --config, --data-dir, --media-dir, --no-self-heal)', () => {
+  const result = run([
+    '--http',
+    '--host', '0.0.0.0',
+    '--config', '/tmp/mcp.json',
+    '--config-dir', '/etc/zalo',
+    '--credentials-dir', '/etc/zalo-creds',
+    '--data-dir', '/var/lib/zalo',
+    '--media-dir', '/mnt/media',
+    '--oa-dir', '/etc/zalo-oa',
+    '--no-self-heal',
+  ]);
   assert.equal(result.status, 0, result.stderr);
   assert.deepEqual(
     JSON.parse(result.stdout),
-    ['mcp', 'start', '--http', '3847', '--host', '0.0.0.0', '--config', '/tmp/mcp.json', '--no-self-heal']
+    [
+      'mcp', 'start',
+      '--http', '3847',
+      '--host', '0.0.0.0',
+      '--config', '/tmp/mcp.json',
+      '--config-dir', '/etc/zalo',
+      '--credentials-dir', '/etc/zalo-creds',
+      '--data-dir', '/var/lib/zalo',
+      '--media-dir', '/mnt/media',
+      '--oa-dir', '/etc/zalo-oa',
+      '--no-self-heal',
+    ]
   );
 });
 
 for (const args of [
   ['login'],
+  ['--data-dir', '/mnt/db', '--credentials-dir', '/mnt/creds', 'login'],
+  ['--config-dir=/etc/zalo', '--json', 'account', 'list'],
   ['msg', 'list', '--json'],
   ['oa', 'init', '--app-id', '123', '--secret', 'abc'],
   ['oa', 'refresh'],
