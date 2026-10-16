@@ -4,7 +4,7 @@
 
 # zalo-mcp
 
-Gói cài đặt độc lập **Model Context Protocol (MCP)** server và CLI wrapper cho Zalo. Cho phép cài đặt toàn cục qua `npm` (sử dụng lệnh `zalo-mcp` trực tiếp ở mọi nơi) hoặc triển khai trong môi trường đóng gói (sandbox) 1-click giúp AI agents (Claude Code, Cursor) tự động hóa Zalo Personal & Official Account mà không làm rác máy tính của bạn.
+Gói cài đặt độc lập **Model Context Protocol (MCP)** server và CLI wrapper cho Zalo. Cho phép cài đặt toàn cục qua `npm` hoặc triển khai trong môi trường đóng gói (sandbox) 1-click giúp AI agents (Claude Code, Cursor) tự động hóa Zalo Personal & Official Account mà không làm rác máy tính của bạn. Cả hai cách cài đặt đều cung cấp lệnh `zalo-mcp` trực tiếp trên terminal.
 
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
@@ -13,7 +13,7 @@ Gói cài đặt độc lập **Model Context Protocol (MCP)** server và CLI wr
 > [!TIP]
 > **Sự khác biệt giữa `zalo-mcp` và `zalo-agent-cli`?**
 > - **`zalo-agent-cli`**: Là bộ mã nguồn lõi (engine). Xử lý toàn bộ logic API, login, và chứa mã nguồn thật sự của MCP Server.
-> - **`zalo-mcp` (Repo này)**: Là vỏ bọc triển khai nhanh (deployment & CLI wrapper). Nó không chứa mã nguồn lõi mà chuyển tiếp toàn bộ lệnh CLI và khởi chạy MCP Server từ `@ardennguyen/zalo-agent-cli`. Bạn có thể cài đặt toàn cục (`npm i -g @ardennguyen/zalo-mcp`) để dùng lệnh `zalo-mcp` ở bất kỳ đâu, hoặc dùng script 1-click để tạo thư mục cục bộ an toàn với Node/Python và `.env` biệt lập.
+> - **`zalo-mcp` (Repo này)**: Là vỏ bọc triển khai nhanh (deployment & CLI wrapper). Nó không chứa mã nguồn lõi mà chuyển tiếp toàn bộ lệnh CLI và khởi chạy MCP Server từ `@ardennguyen/zalo-agent-cli`. Dù bạn cài toàn cục (`npm i -g @ardennguyen/zalo-mcp`) hay dùng script 1-click tạo thư mục biệt lập (tự động `npm link` và cấu hình `.env`), bạn đều có thể chạy lệnh `zalo-mcp` ở bất kỳ đâu.
 
 ---
 
@@ -21,14 +21,13 @@ Gói cài đặt độc lập **Model Context Protocol (MCP)** server và CLI wr
 
 Trước khi cài đặt, hãy đảm bảo máy bạn đã có:
 *   **Node.js**: Phiên bản 22 trở lên (Bắt buộc cho MCP server và CLI).
-*   **Python**: Phiên bản 3.8 trở lên (Tùy chọn, chỉ dùng khi cài qua script 1-click nếu muốn tự render biểu đồ hoặc PDF report).
 *   **Git**: Cần thiết để clone các bản cập nhật phụ thuộc.
 
 ---
 
 ## 🚀 Bắt đầu nhanh
 
-Bạn có thể chọn **Cách 1 (Cài đặt toàn cục qua npm)** để dùng lệnh `zalo-mcp` ở mọi nơi trên terminal, hoặc **Cách 2 (Cài đặt thư mục biệt lập 1 dòng lệnh)**.
+Bạn có thể chọn **Cách 1 (Cài đặt toàn cục qua npm)** hoặc **Cách 2 (Cài đặt thư mục biệt lập 1 dòng lệnh)**. Cả hai cách đều đăng ký lệnh `zalo-mcp` vào `PATH` để bạn sử dụng ở mọi nơi.
 
 ### Cách 1: Cài đặt toàn cục qua npm (Global CLI)
 
@@ -36,24 +35,9 @@ Bạn có thể chọn **Cách 1 (Cài đặt toàn cục qua npm)** để dùng
 npm install -g @ardennguyen/zalo-mcp
 ```
 
-Sau khi cài đặt, lệnh `zalo-mcp` (và `zalo-agent`) có thể chạy trực tiếp từ bất kỳ đâu trong PowerShell, CMD, hoặc Bash mà không cần `cd` vào thư mục cài đặt hay dùng `npm run`:
-
-```powershell
-# Khởi chạy MCP server (mặc định: stdio, hoặc thêm --http 3847)
-zalo-mcp
-zalo-mcp --http 3847 --auth <token> --account <ID>
-
-# Chuyển tiếp mọi lệnh CLI của zalo-agent-cli
-zalo-mcp login
-zalo-mcp msg list
-zalo-mcp listen
-zalo-mcp oa init --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
-zalo-mcp --help
-```
-
 ### Cách 2: Cài đặt thư mục cách ly (1 dòng lệnh)
 
-Mọi phụ thuộc (dependencies) sẽ được tải vào một thư mục cách ly (`zalo-mcp/`). Bạn có thể cài đặt server ở bất kỳ đâu trên máy tính chỉ với 1 lệnh duy nhất:
+Mọi phụ thuộc (dependencies) sẽ được tải vào một thư mục cách ly (`zalo-mcp/`), tạo file `.env` và tự động liên kết lệnh `zalo-mcp` toàn cục (`npm link`). Bạn có thể cài đặt ở bất kỳ đâu trên máy tính chỉ với 1 lệnh duy nhất:
 
 **macOS / Linux:**
 ```bash
@@ -69,10 +53,27 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercont
 1. Tạo thư mục `zalo-mcp` tại vị trí hiện tại.
 2. Tải các file wrapper và cấu hình.
 3. Cài đặt các gói Node.js vào thư mục `node_modules/` cục bộ.
-4. Tạo môi trường ảo Python biệt lập (`venv/`).
-5. Tạo file cấu hình `.env`.
+4. Liên kết lệnh `zalo-mcp` toàn cục (`npm link`) để chạy từ mọi thư mục.
+5. Tạo file cấu hình `.env` (bạn có thể nhập Port ở chế độ tương tác hoặc sửa `.env` sau).
 
-*(Lưu ý: Bạn có thể được hỏi nhập Port nếu chạy ở chế độ tương tác, hoặc bạn có thể tự sửa `.env` sau).*
+---
+
+### Sử dụng lệnh `zalo-mcp`
+
+Sau khi cài đặt (bằng Cách 1 hoặc Cách 2), bạn có thể chạy `zalo-mcp` trực tiếp từ bất kỳ đâu trong PowerShell, CMD, hoặc Bash mà không cần `cd` vào thư mục cài đặt hay dùng `npm run`:
+
+```powershell
+# Khởi chạy MCP server (mặc định: stdio, hoặc thêm --http 3847)
+zalo-mcp
+zalo-mcp --http 3847 --auth <token> --account <ID>
+
+# Chuyển tiếp mọi lệnh CLI của zalo-agent-cli
+zalo-mcp login
+zalo-mcp msg list
+zalo-mcp listen
+zalo-mcp oa init --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
+zalo-mcp --help
+```
 
 ---
 
@@ -83,12 +84,9 @@ Mọi thông tin xác thực đều được lưu cục bộ và an toàn trên 
 ### A. Zalo Cá Nhân (API Không chính thức)
 1. Chạy lệnh đăng nhập:
    ```bash
-   # Nếu cài toàn cục (Global npm):
    zalo-mcp login
-
-   # Hoặc nếu đang ở trong thư mục cài đặt 1-click:
-   npm run login
    ```
+   *(Hoặc `npm run login` nếu chạy trong thư mục cài đặt 1-click).*
 2. Một mã QR sẽ hiển thị trên terminal. Mở **app Zalo trên điện thoại > Quét mã QR** (đừng dùng camera thường của điện thoại).
 
 > [!IMPORTANT]
@@ -98,12 +96,9 @@ Mọi thông tin xác thực đều được lưu cục bộ và an toàn trên 
 ### B. Zalo Official Account (API v3.0 Chính thức)
 1. Khởi tạo kết nối OA:
    ```bash
-   # Nếu cài toàn cục (Global npm):
    zalo-mcp oa init --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
-
-   # Hoặc trong thư mục cài đặt 1-click:
-   npm run oa:init -- --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
    ```
+   *(Hoặc `npm run oa:init -- --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>` trong thư mục cài đặt).*
 2. Làm theo hướng dẫn trên trình duyệt để ủy quyền ứng dụng.
 
 > [!IMPORTANT]
@@ -120,7 +115,7 @@ Khi chạy `zalo-mcp` (hoặc `node mcp-server.js`) **không có tên lệnh con
 
 ### 1. Claude Code (`~/.claude/settings.json`)
 
-**Nếu đã cài toàn cục (`npm i -g @ardennguyen/zalo-mcp`):**
+**Sử dụng lệnh `zalo-mcp` toàn cục:**
 ```json
 {
   "mcpServers": {
@@ -132,7 +127,7 @@ Khi chạy `zalo-mcp` (hoặc `node mcp-server.js`) **không có tên lệnh con
 }
 ```
 
-**Nếu dùng thư mục cài đặt 1-click:**
+**Hoặc trỏ trực tiếp tới thư mục cài đặt 1-click:**
 ```json
 {
   "mcpServers": {
@@ -149,7 +144,7 @@ Khi chạy `zalo-mcp` (hoặc `node mcp-server.js`) **không có tên lệnh con
 Thêm MCP server mới trong settings của Cursor:
 *   **Name:** `zalo`
 *   **Type:** `stdio`
-*   **Command:** `zalo-mcp` *(nếu cài toàn cục)* hoặc `node /đường/dẫn/tuyệt/đối/zalo-mcp/mcp-server.js` *(nếu cài cục bộ)*
+*   **Command:** `zalo-mcp` *(hoặc `node /đường/dẫn/tuyệt/đối/zalo-mcp/mcp-server.js`)*
 
 ---
 
@@ -160,10 +155,10 @@ Thêm MCP server mới trong settings của Cursor:
 *   **Gỡ cài đặt:** `npm uninstall -g @ardennguyen/zalo-mcp`
 
 **Nếu dùng thư mục cài đặt 1-click:**
-*   **Cập nhật bản mới nhất** (Cập nhật engine, node_modules, python deps):
+*   **Cập nhật bản mới nhất** (Cập nhật engine, node_modules và làm mới liên kết `zalo-mcp`):
     *   **Windows**: `.\zalo-mcp.ps1 update`
     *   **macOS / Linux**: `./zalo-mcp.sh update`
-*   **Dọn dẹp môi trường** (Xóa sạch mọi deps để cài lại từ đầu):
+*   **Dọn dẹp môi trường** (Gỡ liên kết CLI và xóa sạch `node_modules` để cài lại từ đầu):
     *   **Windows**: `.\zalo-mcp.ps1 clean`
     *   **macOS / Linux**: `./zalo-mcp.sh clean`
 
@@ -193,22 +188,21 @@ zalo-mcp © 2026 Arden Nguyen Duc Huy được cấp phép theo [CC BY-NC-SA 4.0
 
 ## English
 
-Self-contained **Model Context Protocol (MCP)** server and CLI wrapper for Zalo. Install globally via `npm` to use the `zalo-mcp` command from anywhere, or use the 1-click sandboxed deployment script so AI agents (Claude Code, Cursor) can automate Zalo Personal & Official Accounts without cluttering your host system.
+Self-contained **Model Context Protocol (MCP)** server and CLI wrapper for Zalo. Install globally via `npm` or use the 1-click sandboxed deployment script so AI agents (Claude Code, Cursor) can automate Zalo Personal & Official Accounts without cluttering your host system. Both installation methods provide the `zalo-mcp` command directly in your terminal.
 
 > [!TIP]
 > **What is the difference between `zalo-mcp` and `zalo-agent-cli`?**
 > - **`zalo-agent-cli`**: The core automation engine. It handles all API logic, authentication, CLI commands, and contains the actual MCP server source code.
-> - **`zalo-mcp` (This Repo)**: The lightweight deployment and CLI wrapper. It contains no core engine code—it launches the MCP server and forwards all CLI subcommands to `@ardennguyen/zalo-agent-cli`. You can install it globally (`npm i -g @ardennguyen/zalo-mcp`) to run `zalo-mcp` from any directory, or use the 1-click script to set up a sandboxed local folder with Node/Python and `.env`.
+> - **`zalo-mcp` (This Repo)**: The lightweight deployment and CLI wrapper. It contains no core engine code—it launches the MCP server and forwards all CLI subcommands to `@ardennguyen/zalo-agent-cli`. Whether you install it globally (`npm i -g @ardennguyen/zalo-mcp`) or use the 1-click script (which sets up a sandboxed folder with `.env` and runs `npm link`), you can run `zalo-mcp` from any directory.
 
 ### 📋 Prerequisites
 
 *   **Node.js**: v22 or higher (required for MCP server and CLI).
-*   **Python**: v3.8 or higher (Optional, used by the 1-click installer for rendering charts and PDFs).
 *   **Git**: Required to pull dependencies.
 
 ### 🚀 Quick Start
 
-Choose **Option 1 (Global npm install)** to use `zalo-mcp` directly in PowerShell/Bash from any directory, or **Option 2 (One-Line Sandboxed Folder Install)**.
+Choose **Option 1 (Global npm install)** or **Option 2 (One-Line Sandboxed Folder Install)**. Both methods register the `zalo-mcp` command on your `PATH`.
 
 #### Option 1: Global npm Install (Global CLI)
 
@@ -216,7 +210,23 @@ Choose **Option 1 (Global npm install)** to use `zalo-mcp` directly in PowerShel
 npm install -g @ardennguyen/zalo-mcp
 ```
 
-Once installed, you can run `zalo-mcp` directly from anywhere in PowerShell, CMD, or Bash without `cd`-ing into an installation folder or using `npm run`:
+#### Option 2: One-Line Sandboxed Installation
+
+Downloads all dependencies into an isolated `./zalo-mcp` folder, configures `.env`, and links the `zalo-mcp` CLI command globally (`npm link`):
+
+**macOS / Linux:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main/zalo-mcp.sh | bash -s install
+```
+
+**Windows (PowerShell):**
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main/zalo-mcp.ps1 | Out-File $env:TEMP\zalo-mcp.ps1; & $env:TEMP\zalo-mcp.ps1 install
+```
+
+#### Using the `zalo-mcp` Command
+
+Once installed (via Option 1 or Option 2), you can run `zalo-mcp` directly from anywhere in PowerShell, CMD, or Bash without `cd`-ing into an installation folder or using `npm run`:
 
 ```powershell
 # Start the MCP server (default: stdio, or pass --http 3847)
@@ -231,29 +241,14 @@ zalo-mcp oa init --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
 zalo-mcp --help
 ```
 
-#### Option 2: One-Line Sandboxed Installation
-
-**macOS / Linux:**
-```bash
-curl -fsSL https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main/zalo-mcp.sh | bash -s install
-```
-
-**Windows (PowerShell):**
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main/zalo-mcp.ps1 | Out-File $env:TEMP\zalo-mcp.ps1; & $env:TEMP\zalo-mcp.ps1 install
-```
-
 ### 🔑 Authentication
 
 #### A. Personal Zalo Account (Unofficial API)
 1. Run the login command:
    ```bash
-   # Global npm install:
    zalo-mcp login
-
-   # Or inside a 1-click deployment directory:
-   npm run login
    ```
+   *(Or `npm run login` inside a 1-click deployment directory).*
 2. Scan the printed QR code using the Zalo app on your phone.
 
 > [!IMPORTANT]
@@ -262,12 +257,9 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercont
 #### B. Zalo Official Account (Official API v3.0)
 1. Initialize OA credentials:
    ```bash
-   # Global npm install:
    zalo-mcp oa init --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
-
-   # Or inside a 1-click deployment directory:
-   npm run oa:init -- --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
    ```
+   *(Or `npm run oa:init -- --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>` inside the deployment directory).*
 2. Follow the browser prompt.
 Refresh tokens anytime with: `zalo-mcp oa refresh` (or `npm run oa:refresh`).
 
@@ -279,7 +271,7 @@ When invoked with **no subcommand** (or only MCP server flags such as `--account
 
 **Claude Code (`~/.claude/settings.json`):**
 
-*If installed globally (`npm i -g @ardennguyen/zalo-mcp`):*
+*Using the global `zalo-mcp` command:*
 ```json
 {
   "mcpServers": {
@@ -291,7 +283,7 @@ When invoked with **no subcommand** (or only MCP server flags such as `--account
 }
 ```
 
-*If using the 1-click deployment directory:*
+*Or pointing directly to the 1-click deployment directory:*
 ```json
 {
   "mcpServers": {
@@ -304,7 +296,7 @@ When invoked with **no subcommand** (or only MCP server flags such as `--account
 }
 ```
 
-**Cursor:** Add new MCP server (`stdio`) -> `zalo-mcp` *(global install)* or `node /absolute/path/to/zalo-mcp/mcp-server.js` *(1-click folder install)*.
+**Cursor:** Add new MCP server (`stdio`) -> `zalo-mcp` *(or `node /absolute/path/to/zalo-mcp/mcp-server.js`)*.
 
 ### 🛠️ Management Commands
 
@@ -312,8 +304,8 @@ When invoked with **no subcommand** (or only MCP server flags such as `--account
     *   **Update:** `npm install -g @ardennguyen/zalo-mcp@latest`
     *   **Uninstall:** `npm uninstall -g @ardennguyen/zalo-mcp`
 *   **1-click deployment folder:**
-    *   **Update Deps:** `.\zalo-mcp.ps1 update` or `./zalo-mcp.sh update`
-    *   **Clean Env:** `.\zalo-mcp.ps1 clean` or `./zalo-mcp.sh clean`
+    *   **Update Deps & CLI Link:** `.\zalo-mcp.ps1 update` or `./zalo-mcp.sh update`
+    *   **Clean Env & Unlink CLI:** `.\zalo-mcp.ps1 clean` or `./zalo-mcp.sh clean`
 
 ### 📖 Documentation
 

@@ -31,7 +31,6 @@ run_install() {
     FILES=(
         "package.json"
         "mcp-server.js"
-        "requirements.txt"
         "README.md"
         ".env.example"
         "zalo-mcp.sh"
@@ -65,14 +64,14 @@ run_clean() {
     echo "==================================================="
     echo ""
     
-    echo "[1/2] Removing Node.js dependencies (node_modules)..."
-    rm -rf node_modules package-lock.json
-    echo "Node dependencies removed."
+    echo "[1/2] Unlinking global zalo-mcp CLI command..."
+    npm unlink -g @ardennguyen/zalo-mcp >/dev/null 2>&1 || true
+    echo "Global CLI command unlinked."
     echo ""
-    
-    echo "[2/2] Removing Python environment (venv)..."
-    rm -rf venv
-    echo "Python environment removed."
+
+    echo "[2/2] Removing Node.js dependencies (node_modules)..."
+    rm -rf node_modules package-lock.json venv requirements.txt
+    echo "Dependencies removed."
     echo ""
     
     echo "==================================================="
@@ -110,7 +109,7 @@ run_init() {
     # 2. Install Node.js dependencies
     if [ "$CLEAN_INSTALL" = "1" ]; then
         echo "[CLEAN] Removing existing node_modules and package-lock.json..."
-        rm -rf node_modules package-lock.json
+        rm -rf node_modules package-lock.json venv
     fi
     
     echo "[2/4] Installing Node.js dependencies locally..."
@@ -122,44 +121,12 @@ run_init() {
     echo "Node.js dependencies installed successfully."
     echo ""
     
-    # 3. Optional Python virtual environment setup
-    echo "[3/4] Checking for Python to set up optional reporting environment..."
-    PYTHON_BIN=""
-    if command -v python3 >/dev/null 2>&1; then
-        PYTHON_BIN="python3"
-    elif command -v python >/dev/null 2>&1; then
-        PYTHON_BIN="python"
-    fi
-    
-    if [ -n "$PYTHON_BIN" ]; then
-        echo "Python detected ($PYTHON_BIN). Setting up isolated virtual environment [venv]..."
-        if [ "$CLEAN_INSTALL" = "1" ]; then
-            echo "[CLEAN] Removing existing venv..."
-            rm -rf venv
-        fi
-        
-        if [ ! -d "venv" ]; then
-            if ! $PYTHON_BIN -m venv venv; then
-                echo "[WARNING] Failed to create virtual environment. Continuing without venv."
-                PYTHON_BIN=""
-            fi
-        fi
-        
-        if [ -n "$PYTHON_BIN" ]; then
-            echo "Activating venv and installing Python dependencies..."
-            # Use source to activate properly
-            . venv/bin/activate
-            pip install --upgrade pip >/dev/null 2>&1
-            if ! pip install -r requirements.txt; then
-                echo "[WARNING] Some python dependencies failed to install."
-            fi
-            deactivate
-            echo "Python environment is set up."
-        fi
+    # 3. Link global zalo-mcp CLI command
+    echo "[3/4] Linking global 'zalo-mcp' CLI command..."
+    if npm link; then
+        echo "Global 'zalo-mcp' command is now available in your terminal!"
     else
-        echo "[NOTE] Python was not found on your system."
-        echo "Skipping python virtual environment setup. "
-        echo "[This is optional and only required if you run custom Python report scripts. The core Zalo MCP runs fine.]"
+        echo "[WARNING] Could not link global 'zalo-mcp' command. You can still use 'node mcp-server.js' or 'npm run' inside this folder."
     fi
     echo ""
     
@@ -204,10 +171,10 @@ run_init() {
     echo ""
     echo "Next Steps:"
     echo "1. Scan QR code to login your Personal Zalo Account:"
-    echo "   npm run login"
+    echo "   zalo-mcp login   (or: npm run login)"
     echo ""
     echo "2. [Optional] Setup your Zalo Official Account:"
-    echo "   npm run oa:init -- --app-id [ID] --secret [KEY]"
+    echo "   zalo-mcp oa init --app-id [ID] --secret [KEY]"
     echo ""
     echo "3. Add this server to your Claude Code or Cursor config."
     echo "   Read README.md for details."
@@ -223,7 +190,7 @@ run_update() {
     # Step 1: Self-update scripts and mcp-server.js from npm registry
     echo "[1/3] Updating deployment scripts from npm registry..."
     if npm install @ardennguyen/zalo-mcp@latest --no-save >/dev/null 2>&1; then
-        SELF_FILES=("zalo-mcp.ps1" "zalo-mcp.sh" "mcp-server.js" "package.json" "requirements.txt")
+        SELF_FILES=("zalo-mcp.ps1" "zalo-mcp.sh" "mcp-server.js" "package.json")
         for FILE in "${SELF_FILES[@]}"; do
             if [ -f "./node_modules/@ardennguyen/zalo-mcp/$FILE" ]; then
                 cp "./node_modules/@ardennguyen/zalo-mcp/$FILE" "./$FILE"
@@ -237,11 +204,12 @@ run_update() {
     echo "Scripts updated."
     echo ""
 
-    # Step 1.5: Ensure .env exists
+    # Step 1.5: Ensure .env exists and remove legacy Python artifacts if present
     if [ ! -f .env ] && [ -f .env.example ]; then
         echo "Restoring missing .env file from template..."
         cp .env.example .env
     fi
+    rm -rf venv requirements.txt
 
     # Step 2: Update @ardennguyen/zalo-agent-cli from npm registry
     echo "[2/3] Updating @ardennguyen/zalo-agent-cli from npm registry..."
@@ -252,19 +220,12 @@ run_update() {
     echo "@ardennguyen/zalo-agent-cli updated successfully."
     echo ""
 
-    # Step 3: Update Python dependencies (if venv exists)
-    echo "[3/3] Updating Python dependencies (if virtual environment exists)..."
-    if [ -d "venv" ]; then
-        echo "Virtual environment detected. Updating packages..."
-        . venv/bin/activate
-        pip install --upgrade pip >/dev/null 2>&1
-        if [ -f "requirements.txt" ]; then
-            pip install --upgrade -r requirements.txt
-        fi
-        deactivate
-        echo "Python dependencies updated successfully."
+    # Step 3: Refresh global zalo-mcp CLI link
+    echo "[3/3] Refreshing global 'zalo-mcp' CLI command link..."
+    if npm link; then
+        echo "Global 'zalo-mcp' command updated!"
     else
-        echo "No python virtual environment found. Skipping python update."
+        echo "[WARNING] Could not link global 'zalo-mcp' command."
     fi
     echo ""
 
@@ -279,9 +240,9 @@ if [ -z "$ACTION" ]; then
     echo ""
     echo "Commands:"
     echo "  install Install the Zalo MCP Server from GitHub into a new directory"
-    echo "  init    Initialize the environment (install Node/Python deps, config .env)"
-    echo "  update  Update existing Node/Python dependencies"
-    echo "  clean   Remove all downloaded dependencies (node_modules, venv)"
+    echo "  init    Initialize the environment (install Node deps, link CLI, config .env)"
+    echo "  update  Update existing Node dependencies and refresh CLI link"
+    echo "  clean   Remove all downloaded dependencies (node_modules) and unlink CLI"
     echo ""
     echo "Options (for init):"
     echo "  --clean         Remove existing dependencies before initialization"
