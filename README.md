@@ -54,7 +54,10 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercont
 2. Tải các file wrapper và cấu hình.
 3. Cài đặt các gói Node.js vào thư mục `node_modules/` cục bộ.
 4. Liên kết lệnh `zalo-mcp` toàn cục (`npm link`) để chạy từ mọi thư mục.
-5. Tạo file cấu hình `.env` (bạn có thể nhập Port ở chế độ tương tác hoặc sửa `.env` sau).
+5. Tạo file cấu hình `.env` cho Port (`ZALO_MCP_HTTP_PORT`, `ZALO_OA_WEBHOOK_PORT`).
+
+> [!TIP]
+> **Phân tách file `.env` được khuyến nghị:** Chỉ nên dùng `zalo-mcp/.env` để cấu hình **PORT** (`ZALO_MCP_HTTP_PORT`, `ZALO_OA_WEBHOOK_PORT`). Các biến môi trường điều hướng thư mục lưu trữ (`ZALO_CREDENTIALS_DIR`, `ZALO_DATA_DIR`, `ZALO_MEDIA_DIR`, `ZALO_OA_DIR`) và cấu hình engine nên đặt tại `~/.zalo-agent-cli/.env` (`<CONFIG_DIR>/.env`) để cả `zalo-mcp` lẫn `zalo-agent` luôn đọc chung một nguồn cấu hình duy nhất.
 
 ---
 
@@ -90,7 +93,7 @@ Mọi thông tin xác thực đều được lưu cục bộ và an toàn trên 
 2. Một mã QR sẽ hiển thị trên terminal. Mở **app Zalo trên điện thoại > Quét mã QR** (đừng dùng camera thường của điện thoại).
 
 > [!IMPORTANT]
-> **Vị trí lưu trữ Credentials:** Lưu mã hóa tại `~/.zalo-agent-cli/` (quyền `0600`).
+> **Vị trí lưu trữ Credentials:** Mặc định tại `~/.zalo-agent-cli/` (quyền `0600`). Có thể tách riêng credentials, database (`zalo.db`), và media sang các ổ đĩa khác nhau bằng cách khai báo `ZALO_CREDENTIALS_DIR`, `ZALO_DATA_DIR`, `ZALO_MEDIA_DIR` trong `~/.zalo-agent-cli/.env` (`<CONFIG_DIR>/.env`).
 > **Cảnh báo:** Đây là API không chính thức, tài khoản cá nhân của bạn có thể bị khóa (ban) nếu dùng để spam liên tục. Không nên dùng nick chính.
 
 ### B. Zalo Official Account (API v3.0 Chính thức)
@@ -102,7 +105,7 @@ Mọi thông tin xác thực đều được lưu cục bộ và an toàn trên 
 2. Làm theo hướng dẫn trên trình duyệt để ủy quyền ứng dụng.
 
 > [!IMPORTANT]
-> **Vị trí lưu trữ Credentials:** Lưu an toàn tại `~/.zalo-agent/oa-credentials.json`.
+> **Vị trí lưu trữ Credentials:** Mặc định tại `~/.zalo-agent/oa-credentials.json` (hoặc tùy chỉnh qua `ZALO_OA_DIR` trong `~/.zalo-agent-cli/.env`).
 > OA Access Tokens hết hạn sau 25 giờ. Refresh bất cứ lúc nào bằng lệnh: `zalo-mcp oa refresh` (hoặc `npm run oa:refresh`).
 
 ---
@@ -212,7 +215,7 @@ npm install -g @ardennguyen/zalo-mcp
 
 #### Option 2: One-Line Sandboxed Installation
 
-Downloads all dependencies into an isolated `./zalo-mcp` folder, configures `.env`, and links the `zalo-mcp` CLI command globally (`npm link`):
+Downloads all dependencies into an isolated `./zalo-mcp` folder, configures `.env` for ports (`ZALO_MCP_HTTP_PORT`, `ZALO_OA_WEBHOOK_PORT`), and links the `zalo-mcp` CLI command globally (`npm link`):
 
 **macOS / Linux:**
 ```bash
@@ -223,6 +226,9 @@ curl -fsSL https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main/zalo-mcp.
 ```powershell
 Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main/zalo-mcp.ps1 | Out-File $env:TEMP\zalo-mcp.ps1; & $env:TEMP\zalo-mcp.ps1 install
 ```
+
+> [!TIP]
+> **Recommended `.env` split:** Keep `zalo-mcp/.env` for **PORT settings only** (`ZALO_MCP_HTTP_PORT`, `ZALO_OA_WEBHOOK_PORT`). Place storage directory overrides (`ZALO_CREDENTIALS_DIR`, `ZALO_DATA_DIR`, `ZALO_MEDIA_DIR`, `ZALO_OA_DIR`) and engine settings in `~/.zalo-agent-cli/.env` (`<CONFIG_DIR>/.env`) so both `zalo-mcp` and `zalo-agent` share a single source of truth.
 
 #### Using the `zalo-mcp` Command
 
@@ -252,6 +258,7 @@ zalo-mcp --help
 2. Scan the printed QR code using the Zalo app on your phone.
 
 > [!IMPORTANT]
+> **Credentials Storage:** Defaults to `~/.zalo-agent-cli/` (`0600` permissions). To separate credentials, the SQLite database (`zalo.db`), and media onto different volumes, set `ZALO_CREDENTIALS_DIR`, `ZALO_DATA_DIR`, and `ZALO_MEDIA_DIR` in `~/.zalo-agent-cli/.env` (`<CONFIG_DIR>/.env`).
 > **Safety Notice:** This uses an unofficial API. Your personal account can get banned if heavily abused for spam.
 
 #### B. Zalo Official Account (Official API v3.0)
@@ -262,6 +269,9 @@ zalo-mcp --help
    *(Or `npm run oa:init -- --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>` inside the deployment directory).*
 2. Follow the browser prompt.
 Refresh tokens anytime with: `zalo-mcp oa refresh` (or `npm run oa:refresh`).
+
+> [!IMPORTANT]
+> **Credentials Storage:** Defaults to `~/.zalo-agent/oa-credentials.json` (or customized via `ZALO_OA_DIR` in `~/.zalo-agent-cli/.env`).
 
 ### 🤖 AI Agent Integration (MCP)
 
