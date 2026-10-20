@@ -22,6 +22,7 @@ Gói cài đặt độc lập **Model Context Protocol (MCP)** server và CLI wr
 Trước khi cài đặt, hãy đảm bảo máy bạn đã có:
 *   **Node.js**: Phiên bản 22 trở lên (Bắt buộc cho MCP server và CLI).
 *   **Git**: Cần thiết để clone các bản cập nhật phụ thuộc.
+*   **`@ardennguyen/zalo-agent-cli`**: `zalo-mcp` 2.0.5 trở lên cần engine `>=2.5.0` (gói tự cài đúng phiên bản). Engine 2.5.0 trở lên có đủ tool MCP mới nhất và các cờ `--webhook` / `--webhook-secret`; tool và cờ mới của engine chỉ dùng được qua `zalo-mcp` sau khi bạn cập nhật (`.zalo-mcp.ps1 update` / `./zalo-mcp.sh update`, hoặc `npm install -g @ardennguyen/zalo-mcp@latest` nếu cài toàn cục).
 
 ---
 
@@ -114,7 +115,7 @@ Mọi thông tin xác thực đều được lưu cục bộ và an toàn trên 
 
 ## 🤖 Tích hợp AI Agent (MCP)
 
-Khi chạy `zalo-mcp` (hoặc `node mcp-server.js`) **không có tên lệnh con** (chỉ kèm các cờ như `--account`, `--http`, `--auth`, `--host`, `--config`, `--no-self-heal`, `--no-delivered-receipts`), chương trình sẽ tự động khởi chạy `zalo-agent mcp start`. Xem chi tiết [Ghim tài khoản (`--account <ID>`)](docs/account-pinning.vi.md).
+Khi chạy `zalo-mcp` (hoặc `node mcp-server.js`) **không có tên lệnh con** (chỉ kèm các cờ như `--account`, `--http`, `--auth`, `--host`, `--config`, `-w/--webhook`, `--webhook-secret`, `--no-self-heal`, `--no-delivered-receipts`), chương trình sẽ tự động khởi chạy `zalo-agent mcp start`. Xem chi tiết [Ghim tài khoản (`--account <ID>`)](docs/account-pinning.vi.md).
 
 ### 1. Claude Code (`~/.claude/settings.json`)
 
@@ -220,6 +221,7 @@ Self-contained **Model Context Protocol (MCP)** server and CLI wrapper for Zalo.
 
 *   **Node.js**: v22 or higher (required for MCP server and CLI).
 *   **Git**: Required to pull dependencies.
+*   **`@ardennguyen/zalo-agent-cli`**: `zalo-mcp` 2.0.5 and later needs engine `>=2.5.0` (the package installs a matching version). Engine 2.5.0 and later carries the newest MCP tools and the `--webhook` / `--webhook-secret` flags; a new engine tool or flag reaches `zalo-mcp` once you update (`.zalo-mcp.ps1 update` / `./zalo-mcp.sh update`, or `npm install -g @ardennguyen/zalo-mcp@latest` for a global install).
 
 ### 🚀 Quick Start
 
@@ -295,7 +297,7 @@ Refresh tokens anytime with: `zalo-mcp oa refresh` (or `npm run oa:refresh`).
 
 ### 🤖 AI Agent Integration (MCP)
 
-When invoked with **no subcommand** (or only MCP server flags such as `--account`, `--http`, `--auth`, `--host`, `--config`, `--no-self-heal`, `--no-delivered-receipts`), `zalo-mcp` starts the MCP server (`zalo-agent mcp start`). See [Account Pinning (`--account <ID>`)](docs/account-pinning.md) for details.
+When invoked with **no subcommand** (or only MCP server flags such as `--account`, `--http`, `--auth`, `--host`, `--config`, `-w/--webhook`, `--webhook-secret`, `--no-self-heal`, `--no-delivered-receipts`), `zalo-mcp` starts the MCP server (`zalo-agent mcp start`). See [Account Pinning (`--account <ID>`)](docs/account-pinning.md) for details.
 
 **Claude Code (`~/.claude/settings.json`):**
 

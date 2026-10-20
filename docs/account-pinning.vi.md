@@ -50,6 +50,8 @@ Mỗi tiến trình chọn và khóa riêng một tài khoản (`<DATA_DIR>/<own
   `@ardennguyen/zalo-mcp` `>=2.0.0` cùng `@ardennguyen/zalo-agent-cli` `>=2.1.0`.
 - **Ghim tài khoản cho lệnh con CLI (`zalo-mcp --account <ID> <lệnh>`):** hỗ trợ
   từ `@ardennguyen/zalo-mcp` `>=2.0.2` cùng `@ardennguyen/zalo-agent-cli` `>=2.2.0`.
+- **Bản hiện hành:** `@ardennguyen/zalo-mcp` `>=2.0.5` yêu cầu
+  `@ardennguyen/zalo-agent-cli` `>=2.5.0`, đã gồm cả hai kiểu ghim tài khoản.
 
 Chạy `npm test` để kiểm tra launcher: bộ test khởi động bản sao launcher với
 engine giả trong thư mục tạm, kiểm tra chuyển tiếp ID ở cả chế độ MCP server và

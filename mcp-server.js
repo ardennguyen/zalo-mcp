@@ -202,10 +202,14 @@ for (let i = 0; i < userArgs.length; i++) {
   args.push(arg);
 }
 
-// Never log the bearer token: it would end up in the systemd journal / client logs
+// Never log a secret: it would end up in the systemd journal / client logs. Besides the bearer
+// token (--auth), the engine takes the OAuth client secret and, since 2.5.3, the webhook signing
+// secret on the command line; all three are masked, in both `--flag value` and `--flag=value` form.
+const SECRET_FLAGS = new Set(['--auth', '--client-secret', '--webhook-secret']);
 const loggedArgs = args.map((arg, i) => {
-  if (args[i - 1] === '--auth') return '***';
-  if (arg.startsWith('--auth=')) return '--auth=***';
+  if (SECRET_FLAGS.has(args[i - 1])) return '***';
+  const eq = arg.indexOf('=');
+  if (eq > 0 && SECRET_FLAGS.has(arg.slice(0, eq))) return `${arg.slice(0, eq)}=***`;
   return arg;
 });
 console.error(`Starting Zalo MCP Server via: node ${loggedArgs.join(' ')}`);
