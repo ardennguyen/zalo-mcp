@@ -90,6 +90,11 @@ for (const args of [
   ['oa', 'refresh'],
   ['listen', '--account', '101'],
   ['mcp', 'start', '--http', '3847'],
+  ['bank', 'accounts', '-l', '5'],
+  ['mcp', 'wait', '--timeout', '30'],
+  ['group', 'leave', '123', '-s'],
+  ['friend', 'qr', '101', '202'],
+  ['listen', '--events', 'message,typing,upload'],
   ['--help'],
   ['-h'],
   ['--version'],
@@ -121,4 +126,33 @@ test('an engine rejecting the flag fails rather than retrying without it', () =>
   assert.equal(result.status, 1);
   assert.match(result.stderr, /unknown option --account/);
   assert.equal(result.stdout, '');
+});
+
+// The engine takes more secrets on the command line than the bearer token: the OAuth client secret
+// and, since 2.5.3, the webhook signing secret. The launcher logs the command it starts to stderr
+// (client logs, systemd journal), so none of them may appear there; the engine still gets them.
+for (const [flag, value] of [
+  ['--auth', 'tok-123'],
+  ['--client-secret', 'cs-456'],
+  ['--webhook-secret', 'wh-789'],
+]) {
+  for (const spelling of ['separate', 'equals']) {
+    test(`never logs the value of ${flag} (${spelling}) but still forwards it`, () => {
+      const args = spelling === 'separate' ? ['--http', '4567', flag, value] : ['--http', '4567', `${flag}=${value}`];
+      const result = run(args);
+      assert.equal(result.status, 0, result.stderr);
+      assert.ok(!result.stderr.includes(value), `${flag} value leaked into stderr: ${result.stderr}`);
+      assert.match(result.stderr, /Starting Zalo MCP Server via/);
+      const forwarded = JSON.parse(result.stdout);
+      assert.ok(spelling === 'separate' ? forwarded.includes(value) : forwarded.includes(`${flag}=${value}`));
+    });
+  }
+}
+
+test('requires engine 2.5.0 or newer, and installs nothing older', () => {
+  const pkg = require('../package.json');
+  assert.equal(pkg.dependencies['@ardennguyen/zalo-agent-cli'], '^2.5.0');
+  // ^2.5.0 is >=2.5.0 <3.0.0: 2.5.0 itself is allowed, 2.4.x is not.
+  const [maj, min] = pkg.dependencies['@ardennguyen/zalo-agent-cli'].slice(1).split('.').map(Number);
+  assert.deepEqual([maj, min], [2, 5]);
 });
