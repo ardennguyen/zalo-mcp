@@ -1,10 +1,14 @@
 name: CI
 
+# Every branch and every pull request, whatever its base.
 on:
   push:
-    branches: [main, v2.0-dev, v2.0.0, v1.1.0]
+    branches: ['**']
   pull_request:
-    branches: [main, v2.0-dev, v2.0.0, v1.1.0]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -15,6 +19,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      # The same npm the publish workflow uses (needs Node ^22.22.2; `22` resolves to the latest 22.x).
+      - run: npm install -g npm@^12.2.0
 
       - run: git config --global url."https://github.com/".insteadOf "git@github.com:"
       - run: npm ci
