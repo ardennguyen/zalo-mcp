@@ -139,29 +139,28 @@ run_init() {
         echo ".env file already exists."
     fi
     
-    # Interactive port selection if not passed as CLI arguments
-    if [ -z "$OA_PORT" ]; then
-        read -p "Enter Zalo OA Webhook Port [default: 3000]: " OA_INPUT
-        OA_PORT=${OA_INPUT:-3000}
+    if [ -n "$OA_PORT" ]; then
+        echo "--oa-port is ignored: nothing reads ZALO_OA_WEBHOOK_PORT. Pass --port to 'zalo-agent oa listen' instead."
     fi
-    
+
+    # Interactive port selection if not passed as CLI arguments
     if [ -z "$MCP_PORT" ]; then
         read -p "Enter Zalo MCP HTTP Port [default: 3847]: " MCP_INPUT
         MCP_PORT=${MCP_INPUT:-3847}
     fi
     
-    # Ensure port variables exist in the .env file, then replace their values
-    if ! grep -q "^ZALO_OA_WEBHOOK_PORT=" .env; then echo "ZALO_OA_WEBHOOK_PORT=3000" >> .env; fi
+    # Earlier versions of this script wrote ZALO_OA_WEBHOOK_PORT; nothing ever read it.
+    grep -v "^ZALO_OA_WEBHOOK_PORT=" .env > .env.tmp; mv .env.tmp .env
+
+    # Ensure the port variable exists in the .env file, then replace its value
     if ! grep -q "^ZALO_MCP_HTTP_PORT=" .env; then echo "ZALO_MCP_HTTP_PORT=3847" >> .env; fi
     
     # Perform POSIX-compliant awk replacement to set ports in-place
-    awk -v oa="$OA_PORT" -v mcp="$MCP_PORT" '{
-        if ($0 ~ /^ZALO_OA_WEBHOOK_PORT=/) print "ZALO_OA_WEBHOOK_PORT=" oa;
-        else if ($0 ~ /^ZALO_MCP_HTTP_PORT=/) print "ZALO_MCP_HTTP_PORT=" mcp;
+    awk -v mcp="$MCP_PORT" '{
+        if ($0 ~ /^ZALO_MCP_HTTP_PORT=/) print "ZALO_MCP_HTTP_PORT=" mcp;
         else print $0;
     }' .env > .env.tmp && mv .env.tmp .env
     
-    echo "Configured Zalo OA Webhook Port to: $OA_PORT"
     echo "Configured Zalo MCP HTTP Port to: $MCP_PORT"
     echo ""
     
@@ -246,7 +245,7 @@ if [ -z "$ACTION" ]; then
     echo ""
     echo "Options (for init):"
     echo "  --clean         Remove existing dependencies before initialization"
-    echo "  --oa-port <port> Webhook port for OA (default: 3000)"
+    echo "  --oa-port <port> Ignored (kept so existing scripts still run); use 'oa listen --port'"
     echo "  --mcp-port <port> HTTP port for MCP (default: 3847)"
     exit 1
 fi

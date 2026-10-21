@@ -55,10 +55,10 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercont
 2. Tải các file wrapper và cấu hình.
 3. Cài đặt các gói Node.js vào thư mục `node_modules/` cục bộ.
 4. Liên kết lệnh `zalo-mcp` toàn cục (`npm link`) để chạy từ mọi thư mục.
-5. Tạo file cấu hình `.env` cho Port (`ZALO_MCP_HTTP_PORT`, `ZALO_OA_WEBHOOK_PORT`).
+5. Tạo file cấu hình `.env` cho Port (`ZALO_MCP_HTTP_PORT`).
 
 > [!TIP]
-> **Phân tách file `.env` được khuyến nghị:** Chỉ nên dùng `zalo-mcp/.env` để cấu hình **PORT** (`ZALO_MCP_HTTP_PORT`, `ZALO_OA_WEBHOOK_PORT`). Các biến môi trường điều hướng thư mục lưu trữ (`ZALO_CREDENTIALS_DIR`, `ZALO_DATA_DIR`, `ZALO_MEDIA_DIR`, `ZALO_OA_DIR`) và cấu hình engine nên đặt tại `~/.zalo-agent-cli/.env` (`<CONFIG_DIR>/.env`) để cả `zalo-mcp` lẫn `zalo-agent` luôn đọc chung một nguồn cấu hình duy nhất.
+> **Phân tách file `.env` được khuyến nghị:** Chỉ nên dùng `zalo-mcp/.env` để cấu hình **PORT** (`ZALO_MCP_HTTP_PORT`). Các biến môi trường điều hướng thư mục lưu trữ (`ZALO_CREDENTIALS_DIR`, `ZALO_DATA_DIR`, `ZALO_MEDIA_DIR`, `ZALO_OA_DIR`) và cấu hình engine nên đặt tại `~/.zalo-agent-cli/.env` (`<CONFIG_DIR>/.env`) để cả `zalo-mcp` lẫn `zalo-agent` luôn đọc chung một nguồn cấu hình duy nhất.
 
 ---
 
@@ -205,7 +205,6 @@ zalo-mcp © 2026 Arden Nguyen Duc Huy được cấp phép theo [CC BY-NC-SA 4.0
 ---
 
 
-
 ---
 
 ## English
@@ -235,7 +234,7 @@ npm install -g @ardennguyen/zalo-mcp
 
 #### Option 2: One-Line Sandboxed Installation
 
-Downloads all dependencies into an isolated `./zalo-mcp` folder, configures `.env` for ports (`ZALO_MCP_HTTP_PORT`, `ZALO_OA_WEBHOOK_PORT`), and links the `zalo-mcp` CLI command globally (`npm link`):
+Downloads all dependencies into an isolated `./zalo-mcp` folder, configures `.env` for ports (`ZALO_MCP_HTTP_PORT`), and links the `zalo-mcp` CLI command globally (`npm link`):
 
 **macOS / Linux:**
 ```bash
@@ -248,7 +247,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercont
 ```
 
 > [!TIP]
-> **Recommended `.env` split:** Keep `zalo-mcp/.env` for **PORT settings only** (`ZALO_MCP_HTTP_PORT`, `ZALO_OA_WEBHOOK_PORT`). Place storage directory overrides (`ZALO_CREDENTIALS_DIR`, `ZALO_DATA_DIR`, `ZALO_MEDIA_DIR`, `ZALO_OA_DIR`) and engine settings in `~/.zalo-agent-cli/.env` (`<CONFIG_DIR>/.env`) so both `zalo-mcp` and `zalo-agent` share a single source of truth.
+> **Recommended `.env` split:** Keep `zalo-mcp/.env` for **PORT settings only** (`ZALO_MCP_HTTP_PORT`). Place storage directory overrides (`ZALO_CREDENTIALS_DIR`, `ZALO_DATA_DIR`, `ZALO_MEDIA_DIR`, `ZALO_OA_DIR`) and engine settings in `~/.zalo-agent-cli/.env` (`<CONFIG_DIR>/.env`) so both `zalo-mcp` and `zalo-agent` share a single source of truth.
 
 #### Using the `zalo-mcp` Command
 

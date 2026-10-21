@@ -131,11 +131,9 @@ function Run-Init {
         Write-Host ".env file already exists."
     }
     
-    $global:oaPort = $oaPort
     $global:mcpPort = $mcpPort
-    if ([string]::IsNullOrWhiteSpace($global:oaPort)) {
-        $oaPortInput = Read-Host "Enter Zalo OA Webhook Port [default: 3000]"
-        $global:oaPort = if ([string]::IsNullOrWhiteSpace($oaPortInput)) { "3000" } else { $oaPortInput }
+    if (-not [string]::IsNullOrWhiteSpace($oaPort)) {
+        Write-Host "-oaPort is ignored: nothing reads ZALO_OA_WEBHOOK_PORT. Pass --port to 'zalo-agent oa listen' instead." -ForegroundColor Yellow
     }
     
     if ([string]::IsNullOrWhiteSpace($global:mcpPort)) {
@@ -144,13 +142,13 @@ function Run-Init {
     }
     
     $envContent = Get-Content ".env"
-    if ($envContent -notmatch 'ZALO_OA_WEBHOOK_PORT=') { $envContent += 'ZALO_OA_WEBHOOK_PORT=3000' }
+    # Earlier versions of this script wrote ZALO_OA_WEBHOOK_PORT; nothing ever read it.
+    $envContent = $envContent | Where-Object { $_ -notmatch '^ZALO_OA_WEBHOOK_PORT=' }
     if ($envContent -notmatch 'ZALO_MCP_HTTP_PORT=') { $envContent += 'ZALO_MCP_HTTP_PORT=3847' }
     
-    $envContent = $envContent -replace 'ZALO_OA_WEBHOOK_PORT=.*', "ZALO_OA_WEBHOOK_PORT=$($global:oaPort)" -replace 'ZALO_MCP_HTTP_PORT=.*', "ZALO_MCP_HTTP_PORT=$($global:mcpPort)"
+    $envContent = $envContent -replace 'ZALO_MCP_HTTP_PORT=.*', "ZALO_MCP_HTTP_PORT=$($global:mcpPort)"
     $envContent | Set-Content ".env"
     
-    Write-Host "Configured Zalo OA Webhook Port to: $($global:oaPort)"
     Write-Host "Configured Zalo MCP HTTP Port to: $($global:mcpPort)`n"
     
     Write-Host "===================================================" -ForegroundColor Cyan
@@ -232,7 +230,7 @@ if ([string]::IsNullOrWhiteSpace($Action)) {
     Write-Host ""
     Write-Host "Options (for init):"
     Write-Host "  -clean         Remove existing dependencies before initialization"
-    Write-Host "  -oaPort <port> Webhook port for OA (default: 3000)"
+    Write-Host "  -oaPort <port> Ignored (kept so existing scripts still run); use 'oa listen --port'"
     Write-Host "  -mcpPort <port> HTTP port for MCP (default: 3847)"
     exit 1
 }
