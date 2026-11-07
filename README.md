@@ -22,7 +22,15 @@ Gói cài đặt độc lập **Model Context Protocol (MCP)** server và CLI wr
 Trước khi cài đặt, hãy đảm bảo máy bạn đã có:
 *   **Node.js**: Phiên bản 22 trở lên (Bắt buộc cho MCP server và CLI).
 *   **Git**: Cần thiết để clone các bản cập nhật phụ thuộc.
-*   **`@ardennguyen/zalo-agent-cli`**: `zalo-mcp` 2.0.5 trở lên cần engine `>=2.5.0` (gói tự cài đúng phiên bản). Engine 2.5.0 trở lên có đủ tool MCP mới nhất và các cờ `--webhook` / `--webhook-secret`; tool và cờ mới của engine chỉ dùng được qua `zalo-mcp` sau khi bạn cập nhật (`.\zalo-mcp.ps1 update` / `./zalo-mcp.sh update`, hoặc `npm install -g @ardennguyen/zalo-mcp@latest` nếu cài toàn cục). Engine 2.5.6 trở lên thêm webhook bền vững (`mcp webhook status`), `/ready` và `/metrics`, lệnh `fleet` cho nhiều tài khoản, và gửi tin Markdown thành định dạng thật của Zalo; mọi cờ và lệnh con này đi qua `zalo-mcp` như bình thường. `zalo-mcp` 2.0.9 cài engine 2.5.9: tin quá dài được tách thành nhiều tin thay vì bị Zalo từ chối, tài khoản dùng proxy đăng nhập lại được, và mỗi id có một tên thống nhất trong các tool MCP. **Hai tham số MCP đã đổi tên** (từ engine 2.5.8): `zalo_view_media` nhận `msgId` (trước là `messageId`) và `zalo_delete_message` nhận `senderId` (trước là `uidFrom`); client đang gửi tên cũ cần đổi theo.
+*   **`@ardennguyen/zalo-agent-cli`**: `zalo-mcp` 2.1.0 cần engine `3.0.0` trở lên (`^3.0.0`; gói tự cài đúng phiên bản). Engine 3.0.0 chạy trên engine Zalo riêng, viết theo giao thức Zalo Web hiện hành (không còn zca-js), và cung cấp **36 MCP tool**: mọi lệnh CLI cá nhân đều có một thao tác MCP. Tool và cờ mới của engine chỉ dùng được qua `zalo-mcp` sau khi bạn cập nhật (`.\zalo-mcp.ps1 update` / `./zalo-mcp.sh update`, hoặc `npm install -g @ardennguyen/zalo-mcp@latest` nếu cài toàn cục). Các wrapper 2.0.5–2.0.9 chạy engine 2.5.x. Lịch sử phiên bản: [CHANGELOG.md](CHANGELOG.md).
+
+> [!IMPORTANT]
+> **Engine 3.0 đã đổi hợp đồng MCP.** Client viết cho 2.x cần đổi theo:
+> - **Mỗi id một tên:** tin nhắn là `msgId` (không còn `id` hay `messageId`), người dùng là `userId` (không còn `uid`), người gửi một tin là `senderId`. `zalo_view_media` nhận `msgId`, `zalo_delete_message` nhận `senderId`.
+> - **`threadType` là `"dm"` hoặc `"group"`** ở cả đầu vào lẫn kết quả; số bị từ chối.
+> - **Mọi id là chuỗi**, kể cả id nhỏ.
+> - **Thao tác phá hủy được hỏi trước.** `zalo_undo`, `zalo_delete_message`, `zalo_group` `leave`, … cần `confirm: true` (`dryRun: true` để xem trước). `confirmMode` trong `mcp-config.json` (hoặc `ZALO_MCP_CONFIRM_MODE`) quyết định ai xác nhận: `agent` (mặc định; lần đầu gặp thao tác được bảo vệ, agent được dặn hỏi bạn muốn xử lý thế nào), `human` (server tự hỏi bạn qua MCP elicitation; chỉ với stdio) hoặc `off`.
+> - Các tool mới, `zalo_friend`, `zalo_group` và `zalo_send_message` từ chối tham số không nhận thay vì bỏ qua.
 
 ---
 
@@ -220,7 +228,15 @@ Self-contained **Model Context Protocol (MCP)** server and CLI wrapper for Zalo.
 
 *   **Node.js**: v22 or higher (required for MCP server and CLI).
 *   **Git**: Required to pull dependencies.
-*   **`@ardennguyen/zalo-agent-cli`**: `zalo-mcp` 2.0.5 and later needs engine `>=2.5.0` (the package installs a matching version). Engine 2.5.0 and later carries the newest MCP tools and the `--webhook` / `--webhook-secret` flags; a new engine tool or flag reaches `zalo-mcp` once you update (`.\zalo-mcp.ps1 update` / `./zalo-mcp.sh update`, or `npm install -g @ardennguyen/zalo-mcp@latest` for a global install). Engine 2.5.6 and later adds a durable webhook (`mcp webhook status`), `/ready` and `/metrics`, the `fleet` commands for many accounts, and Markdown messages sent as real Zalo formatting; every flag and subcommand passes through `zalo-mcp` as usual. `zalo-mcp` 2.0.9 installs engine 2.5.9: a text too long for one message is sent as several instead of being refused, a proxied account can log in again, and each id has one name across the MCP tools. **Two MCP parameters were renamed** (since engine 2.5.8): `zalo_view_media` takes `msgId` (was `messageId`) and `zalo_delete_message` takes `senderId` (was `uidFrom`); a client that sends the old names must switch.
+*   **`@ardennguyen/zalo-agent-cli`**: `zalo-mcp` 2.1.0 needs engine `3.0.0` or later (`^3.0.0`; the package installs a matching version). Engine 3.0.0 runs on its own Zalo engine, built from the current Zalo Web protocol (no zca-js), and serves **36 MCP tools**: every personal CLI command has an MCP action. A new engine tool or flag reaches `zalo-mcp` once you update (`.\zalo-mcp.ps1 update` / `./zalo-mcp.sh update`, or `npm install -g @ardennguyen/zalo-mcp@latest` for a global install). Wrappers 2.0.5–2.0.9 run engine 2.5.x. Version history: [CHANGELOG.md](CHANGELOG.md).
+
+> [!IMPORTANT]
+> **Engine 3.0 changed the MCP contract.** A client written for 2.x must switch:
+> - **One name per id:** a message is `msgId` (no `id` or `messageId`), a user is `userId` (no `uid`), a message's author is `senderId`. `zalo_view_media` takes `msgId`, `zalo_delete_message` takes `senderId`.
+> - **`threadType` is `"dm"` or `"group"`** in inputs and replies; a number is refused.
+> - **Every id is a string**, small ones too.
+> - **Destructive actions are asked about first.** `zalo_undo`, `zalo_delete_message`, `zalo_group` `leave`, … need `confirm: true` (`dryRun: true` previews). `confirmMode` in `mcp-config.json` (or `ZALO_MCP_CONFIRM_MODE`) decides who confirms: `agent` (default; the first time it meets a guarded action, the agent is told to ask you how to handle them), `human` (the server asks you itself through MCP elicitation; stdio only) or `off`.
+> - The new tools, `zalo_friend`, `zalo_group` and `zalo_send_message` refuse an input they do not take instead of ignoring it.
 
 ### 🚀 Quick Start
 
