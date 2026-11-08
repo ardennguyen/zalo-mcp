@@ -29,8 +29,17 @@ Trước khi cài đặt, hãy đảm bảo máy bạn đã có:
 > - **Mỗi id một tên:** tin nhắn là `msgId` (không còn `id` hay `messageId`), người dùng là `userId` (không còn `uid`), người gửi một tin là `senderId`. `zalo_view_media` nhận `msgId`, `zalo_delete_message` nhận `senderId`.
 > - **`threadType` là `"dm"` hoặc `"group"`** ở cả đầu vào lẫn kết quả; số bị từ chối.
 > - **Mọi id là chuỗi**, kể cả id nhỏ.
-> - **Thao tác phá hủy được hỏi trước.** `zalo_undo`, `zalo_delete_message`, `zalo_group` `leave`, … cần `confirm: true` (`dryRun: true` để xem trước). `confirmMode` trong `mcp-config.json` (hoặc `ZALO_MCP_CONFIRM_MODE`) quyết định ai xác nhận: `agent` (mặc định; lần đầu gặp thao tác được bảo vệ, agent được dặn hỏi bạn muốn xử lý thế nào), `human` (server tự hỏi bạn qua MCP elicitation; chỉ với stdio) hoặc `off`.
+> - **Thao tác phá hủy được hỏi trước.** `zalo_undo`, `zalo_delete_message`, `zalo_group` `leave`, … cần `confirm: true` (`dryRun: true` để xem trước). `confirmMode` trong `mcp-config.json` (hoặc `ZALO_MCP_CONFIRM_MODE`) quyết định ai xác nhận: `agent` (mặc định; lần đầu gặp thao tác được bảo vệ, agent được dặn hỏi bạn muốn xử lý thế nào), `human` (server tự hỏi bạn: qua MCP elicitation với stdio, còn lại bằng một trang phê duyệt dùng một lần có link trong kết quả, dùng được cả qua HTTP) hoặc `off`.
 > - Các tool mới, `zalo_friend`, `zalo_group` và `zalo_send_message` từ chối tham số không nhận thay vì bỏ qua.
+
+> [!IMPORTANT]
+> **Engine 3.0 còn đổi cách nó chạy:**
+> - **Một phiên đăng nhập web cho mỗi tài khoản.** Server chính là phiên web đó: đăng nhập QR vào **Zalo Web** bằng cùng tài khoản sẽ đăng xuất server. **Điện thoại và ứng dụng Zalo PC** là các phiên riêng, chạy song song được. Hãy dùng điện thoại hoặc Zalo PC bên cạnh server, không dùng Zalo Web.
+> - **Dữ liệu được mã hóa khi lưu:** phiên đăng nhập, cơ sở dữ liệu tin nhắn `zalo.db` và media được niêm phong bằng khóa của từng tài khoản (DPAPI trên Windows, keychain trên macOS, passphrase trên VPS). Lệnh 3.0 đầu tiên chuyển dữ liệu cũ ngay tại chỗ, không giữ bản rõ. Đọc và sao lưu bằng `zalo-mcp db query` / `zalo-mcp db backup`, không mở `zalo.db` bằng `sqlite3`.
+> - **Presence on-demand** là mặc định của server HTTP: socket Zalo đóng sau 5 phút rảnh và mở lại ở lần gọi tool hay chờ tin kế tiếp; tin đến trong lúc đó được bù khi kết nối lại. MCP qua stdio vẫn luôn kết nối. Cần thời gian thực (webhook ngay lập tức): `ZALO_PRESENCE_MODE=always-on`.
+> - **Tên theo biệt danh trước:** mọi kết quả gọi một người bằng biệt danh bạn đặt cho họ, rồi tên Zalo (như Zalo Web và PC). `senderName` giờ ưu tiên biệt danh; giá trị gốc nằm ở `senderAlias` và `senderZaloName`.
+> - **Rời nhóm là xóa lịch sử cục bộ của nhóm** (tự rời, bị mời ra, bị chặn, nhóm giải tán), như Zalo Web và PC; sự kiện `group_gone` báo điều đó. Muốn giữ: `groups.onLeave: "keep"` trong `storage.json`.
+> - **Lệnh CLI phá hủy cần `--yes`:** `account export`, `logout`, `account remove`, `db export --plaintext`, `msg undo`, `group leave`, … không làm gì và thoát mã 2 nếu thiếu nó; `--dry-run` cho xem trước.
 
 ---
 
@@ -78,7 +87,7 @@ Sau khi cài đặt (bằng Cách 1 hoặc Cách 2), bạn có thể chạy `zal
 # Khởi chạy MCP server (mặc định: stdio, hoặc thêm --http 3847)
 zalo-mcp
 zalo-mcp --account <ID>
-zalo-mcp --http 3847 --auth <token> --account <ID> --host 0.0.0.0
+zalo-mcp --http 3847 --account <ID>      # HTTP trên 127.0.0.1; token lấy từ ZALO_MCP_AUTH_TOKEN (xem dưới)
 
 # Chuyển tiếp mọi lệnh CLI của zalo-agent-cli (hỗ trợ --account <ID> cho từng lệnh)
 zalo-mcp login
@@ -88,6 +97,9 @@ zalo-mcp --account <ID> listen
 zalo-mcp oa init --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
 zalo-mcp --help
 ```
+
+> [!WARNING]
+> **Token của HTTP nằm trong file, không bao giờ trên dòng lệnh.** `--auth <token>` hiện trong `ps` và lịch sử shell. Đặt `ZALO_MCP_AUTH_TOKEN=<token>` (hoặc `ZALO_MCP_AUTH_TOKEN_<ID>=` cho từng tài khoản) trong `~/.zalo-agent-cli/.env`, chỉ user của bạn đọc được (`chmod 600`). Tạo token: `openssl rand -hex 32`. Đừng dùng `--host 0.0.0.0`: trong mạng LAN hãy bind địa chỉ LAN và mở firewall cho subnet đó; ra internet thì đặt sau một proxy TLS. Bộ cấu hình mẫu: [máy bàn / LAN qua HTTP](https://github.com/ardennguyen/zalo-agent-cli/blob/main/docs/config-samples/use-cases/b-desktop-lan-http/README.vi.md), [VPS](https://github.com/ardennguyen/zalo-agent-cli/blob/main/docs/config-samples/use-cases/c-vps-few-accounts/README.vi.md).
 
 ---
 
@@ -102,9 +114,10 @@ Mọi thông tin xác thực đều được lưu cục bộ và an toàn trên 
    ```
    *(Hoặc `npm run login` nếu chạy trong thư mục cài đặt 1-click).*
 2. Một mã QR sẽ hiển thị trên terminal. Mở **app Zalo trên điện thoại > Quét mã QR** (đừng dùng camera thường của điện thoại).
+3. Sau đó đừng đăng nhập Zalo Web bằng tài khoản này: nó sẽ đăng xuất phiên của `zalo-mcp`. Điện thoại và Zalo PC vẫn dùng bình thường.
 
 > [!IMPORTANT]
-> **Vị trí lưu trữ Credentials:** Mặc định tại `~/.zalo-agent-cli/` (quyền `0600`). Có thể tách riêng credentials, database (`zalo.db`), và media sang các ổ đĩa khác nhau bằng cách khai báo `ZALO_CREDENTIALS_DIR`, `ZALO_DATA_DIR`, `ZALO_MEDIA_DIR` trong `~/.zalo-agent-cli/.env` (`<CONFIG_DIR>/.env`).
+> **Vị trí lưu trữ Credentials:** Mặc định tại `~/.zalo-agent-cli/` (quyền `0600`, niêm phong bằng khóa của tài khoản từ 3.0). Có thể tách riêng credentials, database (`zalo.db`), và media sang các ổ đĩa khác nhau bằng cách khai báo `ZALO_CREDENTIALS_DIR`, `ZALO_DATA_DIR`, `ZALO_MEDIA_DIR` trong `~/.zalo-agent-cli/.env` (`<CONFIG_DIR>/.env`).
 > **Cảnh báo:** Đây là API không chính thức, tài khoản cá nhân của bạn có thể bị khóa (ban) nếu dùng để spam liên tục. Không nên dùng nick chính.
 
 ### B. Zalo Official Account (API v3.0 Chính thức)
@@ -123,7 +136,7 @@ Mọi thông tin xác thực đều được lưu cục bộ và an toàn trên 
 
 ## 🤖 Tích hợp AI Agent (MCP)
 
-Khi chạy `zalo-mcp` (hoặc `node mcp-server.js`) **không có tên lệnh con** (chỉ kèm các cờ như `--account`, `--http`, `--auth`, `--host`, `--config`, `-w/--webhook`, `--webhook-secret`, `--no-self-heal`, `--no-delivered-receipts`, `--log-level`), chương trình sẽ tự động khởi chạy `zalo-agent mcp start`. Xem chi tiết [Ghim tài khoản (`--account <ID>`)](docs/account-pinning.vi.md).
+Khi chạy `zalo-mcp` (hoặc `node mcp-server.js`) **không có tên lệnh con** (chỉ kèm các cờ như `--account`, `--http`, `--auth`, `--host`, `--config`, `-w/--webhook`, `--webhook-secret`, `--no-self-heal`, `--no-delivered-receipts`, `--log-level`), chương trình sẽ tự động khởi chạy `zalo-agent mcp start` (`--auth` vẫn dùng được nhưng làm lộ token trong `ps`; hãy dùng `ZALO_MCP_AUTH_TOKEN`). Xem chi tiết [Ghim tài khoản (`--account <ID>`)](docs/account-pinning.vi.md).
 
 ### 1. Claude Code (`~/.claude/settings.json`)
 
@@ -155,7 +168,7 @@ Mỗi tài khoản có database (`zalo.db`), thư mục media và `daemon.lock` 
   }
 }
 ```
-*(Trên VPS chạy HTTP mode, khởi chạy mỗi tài khoản trên một port riêng: `zalo-mcp --account <ID> --http 3847 --auth <token> --host 0.0.0.0`. Khi gọi lệnh CLI song song, truyền `zalo-mcp --account <ID> <lệnh>` hoặc đặt biến `ZALO_ACCOUNT=<ID>`.)*
+*(Trên VPS: chạy engine trực tiếp dưới systemd, mỗi tài khoản một unit `zalo-mcp@<ID>` trên một port riêng của 127.0.0.1, token nằm trong file env của tài khoản đó (`/etc/zalo-mcp/accounts/<ID>.env`, quyền 600), Caddy phía trước cho TLS. `zalo-agent fleet generate` sinh ra unit, file env (kèm token) và Caddyfile; làm theo [bộ cấu hình VPS](https://github.com/ardennguyen/zalo-agent-cli/blob/main/docs/config-samples/use-cases/c-vps-few-accounts/README.vi.md) và [docs/deployment.vi.md](https://github.com/ardennguyen/zalo-agent-cli/blob/main/docs/deployment.vi.md). Khi gọi lệnh CLI song song, truyền `zalo-mcp --account <ID> <lệnh>` hoặc đặt biến `ZALO_ACCOUNT=<ID>`.)*
 
 **Hoặc trỏ trực tiếp tới thư mục cài đặt 1-click:**
 ```json
@@ -235,8 +248,17 @@ Self-contained **Model Context Protocol (MCP)** server and CLI wrapper for Zalo.
 > - **One name per id:** a message is `msgId` (no `id` or `messageId`), a user is `userId` (no `uid`), a message's author is `senderId`. `zalo_view_media` takes `msgId`, `zalo_delete_message` takes `senderId`.
 > - **`threadType` is `"dm"` or `"group"`** in inputs and replies; a number is refused.
 > - **Every id is a string**, small ones too.
-> - **Destructive actions are asked about first.** `zalo_undo`, `zalo_delete_message`, `zalo_group` `leave`, … need `confirm: true` (`dryRun: true` previews). `confirmMode` in `mcp-config.json` (or `ZALO_MCP_CONFIRM_MODE`) decides who confirms: `agent` (default; the first time it meets a guarded action, the agent is told to ask you how to handle them), `human` (the server asks you itself through MCP elicitation; stdio only) or `off`.
+> - **Destructive actions are asked about first.** `zalo_undo`, `zalo_delete_message`, `zalo_group` `leave`, … need `confirm: true` (`dryRun: true` previews). `confirmMode` in `mcp-config.json` (or `ZALO_MCP_CONFIRM_MODE`) decides who confirms: `agent` (default; the first time it meets a guarded action, the agent is told to ask you how to handle them), `human` (the server asks you itself: by MCP elicitation under stdio, otherwise on a one-time approve page whose link is in the reply, which works over HTTP too) or `off`.
 > - The new tools, `zalo_friend`, `zalo_group` and `zalo_send_message` refuse an input they do not take instead of ignoring it.
+
+> [!IMPORTANT]
+> **Engine 3.0 also changes how it runs:**
+> - **One web login per account.** The server is that login: a QR login into **Zalo Web** with the same account signs the server out. The **phone and the Zalo PC app** are separate logins that coexist with it. Use the phone or Zalo PC beside the server, not Zalo Web.
+> - **Data is encrypted at rest:** the saved login, the message database `zalo.db` and media are sealed under each account's keys (DPAPI on Windows, the keychain on macOS, a passphrase on a VPS). The first 3.0 command converts existing data in place and keeps no plaintext copy. Read and back up with `zalo-mcp db query` / `zalo-mcp db backup`, not `sqlite3`.
+> - **On-demand presence** is the default for an HTTP server: the Zalo socket closes after 5 idle minutes and opens again on the next tool call or wait; what arrived meanwhile is caught up on reconnect. MCP over stdio stays connected. For real time (immediate webhooks): `ZALO_PRESENCE_MODE=always-on`.
+> - **Names are alias-first:** every reply names a person by the alias you set for them, then their Zalo name (as Zalo Web and PC do). `senderName` is now alias-first; the raw values are in `senderAlias` and `senderZaloName`.
+> - **Leaving a group deletes its local history** (left, removed, blocked, or the group disbanded), as Zalo Web and PC do; a `group_gone` event says so. To keep it: `groups.onLeave: "keep"` in `storage.json`.
+> - **Destructive CLI commands need `--yes`:** `account export`, `logout`, `account remove`, `db export --plaintext`, `msg undo`, `group leave`, … do nothing and exit 2 without it; `--dry-run` previews.
 
 ### 🚀 Quick Start
 
@@ -273,7 +295,7 @@ Once installed (via Option 1 or Option 2), you can run `zalo-mcp` directly from 
 # Start the MCP server (default: stdio, or pass --http 3847)
 zalo-mcp
 zalo-mcp --account <ID>
-zalo-mcp --http 3847 --auth <token> --account <ID> --host 0.0.0.0
+zalo-mcp --http 3847 --account <ID>      # HTTP on 127.0.0.1; the token comes from ZALO_MCP_AUTH_TOKEN (below)
 
 # Pass any zalo-agent-cli command and arguments right through (with optional --account <ID>)
 zalo-mcp login
@@ -284,6 +306,9 @@ zalo-mcp oa init --app-id <YOUR_APP_ID> --secret <YOUR_APP_SECRET>
 zalo-mcp --help
 ```
 
+> [!WARNING]
+> **The HTTP token goes in a file, never on the command line.** `--auth <token>` shows in `ps` and in your shell history. Put `ZALO_MCP_AUTH_TOKEN=<token>` (or `ZALO_MCP_AUTH_TOKEN_<ID>=` per account) in `~/.zalo-agent-cli/.env`, readable by your user only (`chmod 600`). Make one with `openssl rand -hex 32`. Do not use `--host 0.0.0.0`: on a LAN bind the LAN address and open the firewall to that subnet; for the internet put a TLS proxy in front. Ready-made sets: [desktop / LAN over HTTP](https://github.com/ardennguyen/zalo-agent-cli/blob/main/docs/config-samples/use-cases/b-desktop-lan-http/README.md), [VPS](https://github.com/ardennguyen/zalo-agent-cli/blob/main/docs/config-samples/use-cases/c-vps-few-accounts/README.md).
+
 ### 🔑 Authentication
 
 #### A. Personal Zalo Account (Unofficial API)
@@ -293,9 +318,10 @@ zalo-mcp --help
    ```
    *(Or `npm run login` inside a 1-click deployment directory).*
 2. Scan the printed QR code using the Zalo app on your phone.
+3. Then do not log this account into Zalo Web: that signs `zalo-mcp` out. The phone and Zalo PC keep working.
 
 > [!IMPORTANT]
-> **Credentials Storage:** Defaults to `~/.zalo-agent-cli/` (`0600` permissions). To separate credentials, the SQLite database (`zalo.db`), and media onto different volumes, set `ZALO_CREDENTIALS_DIR`, `ZALO_DATA_DIR`, and `ZALO_MEDIA_DIR` in `~/.zalo-agent-cli/.env` (`<CONFIG_DIR>/.env`).
+> **Credentials Storage:** Defaults to `~/.zalo-agent-cli/` (`0600` permissions, sealed under the account's keys since 3.0). To separate credentials, the SQLite database (`zalo.db`), and media onto different volumes, set `ZALO_CREDENTIALS_DIR`, `ZALO_DATA_DIR`, and `ZALO_MEDIA_DIR` in `~/.zalo-agent-cli/.env` (`<CONFIG_DIR>/.env`).
 > **Safety Notice:** This uses an unofficial API. Your personal account can get banned if heavily abused for spam.
 
 #### B. Zalo Official Account (Official API v3.0)
@@ -312,7 +338,7 @@ Refresh tokens anytime with: `zalo-mcp oa refresh` (or `npm run oa:refresh`).
 
 ### 🤖 AI Agent Integration (MCP)
 
-When invoked with **no subcommand** (or only MCP server flags such as `--account`, `--http`, `--auth`, `--host`, `--config`, `-w/--webhook`, `--webhook-secret`, `--no-self-heal`, `--no-delivered-receipts`, `--log-level`), `zalo-mcp` starts the MCP server (`zalo-agent mcp start`). See [Account Pinning (`--account <ID>`)](docs/account-pinning.md) for details.
+When invoked with **no subcommand** (or only MCP server flags such as `--account`, `--http`, `--auth`, `--host`, `--config`, `-w/--webhook`, `--webhook-secret`, `--no-self-heal`, `--no-delivered-receipts`, `--log-level`), `zalo-mcp` starts the MCP server (`zalo-agent mcp start`; `--auth` still works but shows the token in `ps`: prefer `ZALO_MCP_AUTH_TOKEN`). See [Account Pinning (`--account <ID>`)](docs/account-pinning.md) for details.
 
 **Claude Code (`~/.claude/settings.json`):**
 
@@ -344,7 +370,7 @@ Each account has its own isolated SQLite cache (`zalo.db`), media folder, and `d
   }
 }
 ```
-*(For HTTP mode on a VPS, run each account on its own port: `zalo-mcp --account <ID> --http 3847 --auth <token> --host 0.0.0.0`. For concurrent CLI calls, pass `zalo-mcp --account <ID> <command>` or set `ZALO_ACCOUNT=<ID>`.)*
+*(On a VPS: run the engine itself under systemd, one `zalo-mcp@<ID>` unit per account on its own 127.0.0.1 port, its token in that account's env file (`/etc/zalo-mcp/accounts/<ID>.env`, mode 600), Caddy in front for TLS. `zalo-agent fleet generate` writes the units, the env files (tokens included) and the Caddyfile; follow the [VPS set](https://github.com/ardennguyen/zalo-agent-cli/blob/main/docs/config-samples/use-cases/c-vps-few-accounts/README.md) and [docs/deployment.md](https://github.com/ardennguyen/zalo-agent-cli/blob/main/docs/deployment.md). For concurrent CLI calls, pass `zalo-mcp --account <ID> <command>` or set `ZALO_ACCOUNT=<ID>`.)*
 
 *Or pointing directly to the 1-click deployment directory:*
 ```json
