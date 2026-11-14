@@ -135,6 +135,7 @@ for (const [flag, value] of [
   ['--auth', 'tok-123'],
   ['--client-secret', 'cs-456'],
   ['--webhook-secret', 'wh-789'],
+  ['--webhook', 'https://crm.example.com/hooks/tok-321'],
 ]) {
   for (const spelling of ['separate', 'equals']) {
     test(`never logs the value of ${flag} (${spelling}) but still forwards it`, () => {
@@ -149,10 +150,10 @@ for (const [flag, value] of [
   }
 }
 
-test('requires engine 2.5.0 or newer, and installs nothing older', () => {
+test('requires engine 3.0.0 or newer, and installs nothing older', () => {
   const pkg = require('../package.json');
-  assert.equal(pkg.dependencies['@ardennguyen/zalo-agent-cli'], '^2.5.0');
-  // ^2.5.0 is >=2.5.0 <3.0.0: 2.5.0 itself is allowed, 2.4.x is not.
+  assert.equal(pkg.dependencies['@ardennguyen/zalo-agent-cli'], '^3.0.0');
+  // ^3.0.0 is >=3.0.0 <4.0.0: 3.0.0 itself is allowed, 2.x is not (its MCP contract differs).
   const [maj, min] = pkg.dependencies['@ardennguyen/zalo-agent-cli'].slice(1).split('.').map(Number);
-  assert.deepEqual([maj, min], [2, 5]);
+  assert.deepEqual([maj, min], [3, 0]);
 });

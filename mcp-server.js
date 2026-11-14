@@ -205,7 +205,8 @@ for (let i = 0; i < userArgs.length; i++) {
 // Never log a secret: it would end up in the systemd journal / client logs. Besides the bearer
 // token (--auth), the engine takes the OAuth client secret and, since 2.5.3, the webhook signing
 // secret on the command line; all three are masked, in both `--flag value` and `--flag=value` form.
-const SECRET_FLAGS = new Set(['--auth', '--client-secret', '--webhook-secret']);
+// The webhook URL is masked too: a receiver URL often carries its own token in the path or query.
+const SECRET_FLAGS = new Set(['--auth', '--client-secret', '--webhook-secret', '--webhook', '-w']);
 const loggedArgs = args.map((arg, i) => {
   if (SECRET_FLAGS.has(args[i - 1])) return '***';
   const eq = arg.indexOf('=');
