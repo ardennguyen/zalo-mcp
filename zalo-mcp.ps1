@@ -85,15 +85,17 @@ function Run-Init {
         $nodeVersionOutput = node -v 2>&1
         if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($nodeVersionOutput)) { throw }
         $nodeVersionString = $nodeVersionOutput -replace 'v', ''
-        $nodeMajor = [int]($nodeVersionString -split '\.')[0]
+        $nodeParts = $nodeVersionString -split '\.'
+        $nodeMajor = [int]$nodeParts[0]
+        $nodeMinor = [int]$nodeParts[1]
         
-        if ($nodeMajor -lt 22) {
-            Write-Host "[WARNING] Node.js version is $nodeMajor, but version 22 or higher is required." -ForegroundColor Yellow
+        if ($nodeMajor -lt 22 -or ($nodeMajor -eq 22 -and $nodeMinor -lt 19)) {
+            Write-Host "[WARNING] Node.js version is $nodeVersionString, but version 22.19.0 or higher is required." -ForegroundColor Yellow
         }
         Write-Host "Node.js is ready.`n" -ForegroundColor Green
     } catch {
         Write-Host "[ERROR] Node.js is not installed or not in your PATH." -ForegroundColor Red
-        Write-Host "Please download and install Node.js - version 22 or higher - from: https://nodejs.org/`n"
+        Write-Host "Please download and install Node.js - version 22.19 or higher - from: https://nodejs.org/`n"
         exit 1
     }
     

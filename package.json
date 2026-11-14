@@ -43,7 +43,7 @@
     "url": "https://github.com/ardennguyen/zalo-mcp"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.19.0"
   },
   "dependencies": {
     "dotenv": "^17.4.2",

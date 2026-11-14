@@ -32,5 +32,3 @@ jobs:
       # for a short-lived credential, so there is no secret to expire.
       - name: Publish @ardennguyen/zalo-mcp
         run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

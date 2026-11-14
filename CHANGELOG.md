@@ -15,11 +15,12 @@ what changed in the wrapper and which engine it installs. Releases before 2.1.0 
 ### What's changed since v2.0.9
 
 - **Requires engine 3.0.0** (`@ardennguyen/zalo-agent-cli` `^3.0.0`). The engine replaces zca-js with
-  its own Zalo engine, built from and tracking the current Zalo Web protocol, so it keeps working with
+  its own Zalo engine, built from and tracking Zalo's current protocol, so it keeps working with
   the latest Zalo version without waiting for a third-party library.
-- **36 MCP tools**, nine of them new (`zalo_conversation`, `zalo_profile`, `zalo_auto_reply`,
-  `zalo_quick_message`, `zalo_catalog`, `zalo_bank`, `zalo_cloud`, `zalo_sticker`, `zalo_link`): every
-  personal CLI command has an MCP action.
+- **37 MCP tools**, ten of them new (`zalo_conversation`, `zalo_profile`, `zalo_auto_reply`,
+  `zalo_quick_message`, `zalo_catalog`, `zalo_bank`, `zalo_cloud`, `zalo_sticker`, `zalo_link`,
+  `zalo_official`): every CLI command has an MCP action, the Official Account, ZBS and Social
+  commands included.
 - **Destructive actions are asked about first.** Guarded MCP actions take `confirm` and `dryRun`, and
   `confirmMode` (`agent`, `human` or `off`) decides who confirms; destructive CLI commands run through
   `zalo-mcp` need `--yes` and exit 2 without it.

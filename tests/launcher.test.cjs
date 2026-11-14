@@ -135,6 +135,7 @@ for (const [flag, value] of [
   ['--auth', 'tok-123'],
   ['--client-secret', 'cs-456'],
   ['--webhook-secret', 'wh-789'],
+  ['--webhook', 'https://crm.example.com/hooks/tok-321'],
 ]) {
   for (const spelling of ['separate', 'equals']) {
     test(`never logs the value of ${flag} (${spelling}) but still forwards it`, () => {

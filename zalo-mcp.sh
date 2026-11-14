@@ -92,16 +92,17 @@ run_init() {
     echo "[1/4] Checking Node.js installation..."
     if ! command -v node >/dev/null 2>&1; then
         echo "[ERROR] Node.js is not installed or not in your PATH."
-        echo "Please download and install Node.js - version 22 or higher - from: https://nodejs.org/"
+        echo "Please download and install Node.js - version 22.19 or higher - from: https://nodejs.org/"
         echo ""
         exit 1
     fi
     
     NODE_VERSION=$(node -v | sed 's/v//')
     NODE_MAJOR=$(echo "$NODE_VERSION" | cut -d. -f1)
+    NODE_MINOR=$(echo "$NODE_VERSION" | cut -d. -f2)
     
-    if [ "$NODE_MAJOR" -lt 22 ]; then
-        echo "[WARNING] Node.js version is $NODE_MAJOR, but version 22 or higher is required."
+    if [ "$NODE_MAJOR" -lt 22 ] || { [ "$NODE_MAJOR" -eq 22 ] && [ "$NODE_MINOR" -lt 19 ]; }; then
+        echo "[WARNING] Node.js version is $NODE_VERSION, but version 22.19.0 or higher is required."
     fi
     echo "Node.js is ready."
     echo ""
