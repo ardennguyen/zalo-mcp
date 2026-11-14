@@ -10,7 +10,7 @@ what changed in the wrapper and which engine it installs. Releases before 2.1.0 
 
 ## [Unreleased]
 
-## [2.1.0] — 2026-11-06
+## [2.1.0] — 2026-11-15
 
 ### What's changed since v2.0.9
 
@@ -25,6 +25,9 @@ what changed in the wrapper and which engine it installs. Releases before 2.1.0 
   `confirmMode` (`agent`, `human` or `off`) decides who confirms; destructive CLI commands run through
   `zalo-mcp` need `--yes` and exit 2 without it.
 - README (Vietnamese and English) and `docs/account-pinning` updated for the new engine.
+- **Node 22.19.0 or later**, as the engine needs; `zalo-mcp.ps1` / `zalo-mcp.sh` check the minor version too.
+- The startup log masks the webhook URL (`--webhook`, `-w`) besides `--auth`, `--client-secret` and `--webhook-secret`.
+- Dependencies resolved past published advisories (`npm audit --omit=dev`: 0).
 
 ### Usage notices
 
