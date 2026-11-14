@@ -46,10 +46,13 @@
     "node": ">=22.19.0"
   },
   "dependencies": {
-    "dotenv": "^17.4.2",
-    "@ardennguyen/zalo-agent-cli": "^3.0.0"
+    "@ardennguyen/zalo-agent-cli": "^3.0.0",
+    "dotenv": "^17.4.2"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "allowScripts": {
+    "better-sqlite3-multiple-ciphers@13.0.3": false
   }
 }
