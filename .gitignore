@@ -15,3 +15,5 @@ agent/
 
 # Agent configuration (local only)
 .agents/
+# Agent worktrees: <repo>/.tmp/<branch>
+.tmp/
