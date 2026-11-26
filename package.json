@@ -11,6 +11,7 @@
   "type": "commonjs",
   "files": [
     "mcp-server.js",
+    "npm-shrinkwrap.json",
     "zalo-mcp.ps1",
     "zalo-mcp.sh",
     ".env.example",

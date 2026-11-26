@@ -15,10 +15,14 @@ silent.
 
 ## Non-negotiables
 
-1. **A wrapper install serves whatever engine `package-lock.json` resolves.** An engine release is
-   not reachable through the wrapper until the lock is bumped here (`npm install
-   @ardennguyen/zalo-agent-cli@X.Y.Z --package-lock-only`, commit `build: pin engine X.Y.Z in the
-   lock file`). The steps are `../zalo-agent-cli/docs/RELEASE.md` §2.
+1. **A wrapper install serves the engine `npm-shrinkwrap.json` pins.** It is the lock file, kept as
+   a shrinkwrap because npm publishes that one (never `package-lock.json`) and installs a package's
+   dependencies by it: `npm install -g`, the scripts' `install`/`init`/`update` (`npm ci`) and a
+   `git clone` + `npm ci` all get exactly that engine. An engine release is not reachable through
+   the wrapper until the pin is bumped here (`npm install @ardennguyen/zalo-agent-cli@X.Y.Z
+   --package-lock-only`, which writes `npm-shrinkwrap.json`; commit `build: pin engine X.Y.Z in the
+   lock file`) and the wrapper is released. Never add a `package-lock.json` beside it. The steps
+   are `../zalo-agent-cli/docs/RELEASE.md` §2.
 2. **Never run `npm install` in a deployed folder** (`V:\zalo_mcp` or any `zalo-mcp` install). Only
    `.\zalo-mcp.ps1 update` / `bash zalo-mcp.sh update`. Deploys pull `ardennguyen/zalo-mcp`, not
    the original PhucMPham repo, and install the engine from npm — a deploy runs a *published*
@@ -95,6 +99,7 @@ This section is byte-identical in the `AGENTS.md` of all four repos; change it i
 | `README.md` (VN + EN halves, same commit) | install/update/clean flow, auth, MCP client config, the engine-version note in "Requirements" |
 | `docs/account-pinning.{md,vi.md}` | `--account` pass-through behavior |
 | `.env.example` | an env var the launcher or scripts read |
+| `npm-shrinkwrap.json` | an engine release (the pin, §Non-negotiables 1) |
 
 Any MCP tool count or list quoted here must match `../zalo-agent-cli/src/mcp/mcp-tools.js`
 (`node ../zalo-agent-cli/scripts/count-surface.mjs` prints it).

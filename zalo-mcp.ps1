@@ -25,6 +25,7 @@ function Run-Install {
     $baseUrl = "https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main"
     $files = @(
         "package.json",
+        "npm-shrinkwrap.json",
         "mcp-server.js",
         "README.md",
         ".env.example",
@@ -49,6 +50,17 @@ function Run-Install {
     }
 }
 
+# Install exactly what npm-shrinkwrap.json pins (the engine version this wrapper release serves); a folder without it
+# (an install older than the pin) falls back to the newest engine its package.json range allows.
+function Install-Pinned {
+    if (Test-Path "npm-shrinkwrap.json") {
+        if (Test-Path "package-lock.json") { Remove-Item -Force "package-lock.json" }
+        npm ci --no-audit --no-fund
+    } else {
+        npm install
+    }
+}
+
 function Run-Clean {
     Write-Host "===================================================" -ForegroundColor Cyan
     Write-Host "  Zalo MCP Server - Clean Environment (Windows)" -ForegroundColor Cyan
@@ -61,6 +73,7 @@ function Run-Clean {
 
     Write-Host "[2/2] Removing Node.js dependencies (node_modules)..." -ForegroundColor Yellow
     if (Test-Path "node_modules") { Remove-Item -Recurse -Force "node_modules" }
+    # npm-shrinkwrap.json stays: it is the engine version this wrapper serves, not a dependency.
     if (Test-Path "package-lock.json") { Remove-Item -Force "package-lock.json" }
     if (Test-Path "venv") { Remove-Item -Recurse -Force "venv" }
     if (Test-Path "requirements.txt") { Remove-Item -Force "requirements.txt" }
@@ -101,14 +114,14 @@ function Run-Init {
     
     # 2. Install Node.js dependencies
     if ($clean) {
-        Write-Host "[CLEAN] Removing existing node_modules and package-lock.json..." -ForegroundColor Magenta
+        Write-Host "[CLEAN] Removing existing node_modules..." -ForegroundColor Magenta
         if (Test-Path "node_modules") { Remove-Item -Recurse -Force "node_modules" }
         if (Test-Path "package-lock.json") { Remove-Item -Force "package-lock.json" }
         if (Test-Path "venv") { Remove-Item -Recurse -Force "venv" }
     }
     
     Write-Host "[2/4] Installing Node.js dependencies locally..." -ForegroundColor Yellow
-    npm install
+    Install-Pinned
     if ($LASTEXITCODE -ne 0) {
         Write-Host "[ERROR] Failed to install Node.js dependencies. Check your internet connection or npm logs.`n" -ForegroundColor Red
         exit 1
@@ -139,7 +152,7 @@ function Run-Init {
     }
     
     if ([string]::IsNullOrWhiteSpace($global:mcpPort)) {
-        $mcpPortInput = Read-Host "Enter Zalo MCP HTTP Port [default: 3847]"
+        $mcpPortInput = Read-Host "Port for 'zalo-mcp --http' (stdio is the default) [default: 3847]"
         $global:mcpPort = if ([string]::IsNullOrWhiteSpace($mcpPortInput)) { "3847" } else { $mcpPortInput }
     }
     
@@ -151,7 +164,7 @@ function Run-Init {
     $envContent = $envContent -replace 'ZALO_MCP_HTTP_PORT=.*', "ZALO_MCP_HTTP_PORT=$($global:mcpPort)"
     $envContent | Set-Content ".env"
     
-    Write-Host "Configured Zalo MCP HTTP Port to: $($global:mcpPort)`n"
+    Write-Host "Port for 'zalo-mcp --http': $($global:mcpPort) (without --http the server speaks stdio)`n"
     
     Write-Host "===================================================" -ForegroundColor Cyan
     Write-Host "  Setup Completed Successfully!" -ForegroundColor Cyan
@@ -177,7 +190,7 @@ function Run-Update {
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  -> [WARNING] Could not download @ardennguyen/zalo-mcp from npm. (continuing)" -ForegroundColor Yellow
     } else {
-        $selfFiles = @("zalo-mcp.ps1", "zalo-mcp.sh", "mcp-server.js", "package.json")
+        $selfFiles = @("zalo-mcp.ps1", "zalo-mcp.sh", "mcp-server.js", "package.json", "npm-shrinkwrap.json")
         foreach ($file in $selfFiles) {
             $sourcePath = ".\node_modules\@ardennguyen\zalo-mcp\$file"
             if (Test-Path $sourcePath) {
@@ -196,14 +209,14 @@ function Run-Update {
     if (Test-Path "venv") { Remove-Item -Recurse -Force "venv" }
     if (Test-Path "requirements.txt") { Remove-Item -Force "requirements.txt" }
 
-    # Step 2: Update @ardennguyen/zalo-agent-cli from npm registry
-    Write-Host "[2/3] Updating @ardennguyen/zalo-agent-cli from npm registry..." -ForegroundColor Yellow
-    npm install @ardennguyen/zalo-agent-cli@latest
+    # Step 2: Install the engine version the wrapper pins (npm-shrinkwrap.json), not whatever is newest on npm
+    Write-Host "[2/3] Installing @ardennguyen/zalo-agent-cli as pinned by this wrapper release..." -ForegroundColor Yellow
+    Install-Pinned
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "[ERROR] Failed to update @ardennguyen/zalo-agent-cli from npm." -ForegroundColor Red
+        Write-Host "[ERROR] Failed to install @ardennguyen/zalo-agent-cli from npm." -ForegroundColor Red
         exit 1
     }
-    Write-Host "@ardennguyen/zalo-agent-cli updated successfully.`n" -ForegroundColor Green
+    Write-Host "@ardennguyen/zalo-agent-cli installed.`n" -ForegroundColor Green
 
     # Step 3: Refresh global zalo-mcp CLI link
     Write-Host "[3/3] Refreshing global 'zalo-mcp' CLI command link..." -ForegroundColor Yellow
