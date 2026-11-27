@@ -30,7 +30,6 @@ run_install() {
     BASE_URL="https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main"
     FILES=(
         "package.json"
-        "npm-shrinkwrap.json"
         "mcp-server.js"
         "README.md"
         ".env.example"
@@ -71,7 +70,7 @@ run_clean() {
     echo ""
 
     echo "[2/2] Removing Node.js dependencies (node_modules)..."
-    # npm-shrinkwrap.json stays: it is the engine version this wrapper serves, not a dependency.
+    # package.json stays: its exact engine version is the one this wrapper release serves.
     rm -rf node_modules package-lock.json venv requirements.txt
     echo "Dependencies removed."
     echo ""
@@ -84,15 +83,12 @@ run_clean() {
     echo ""
 }
 
-# Install exactly what npm-shrinkwrap.json pins (the engine version this wrapper release serves); a folder without it
-# (an install older than the pin) falls back to the newest engine its package.json range allows.
+# Install the engine version package.json pins exactly (the one this wrapper release was tested with), as
+# `npm install -g` does: by package.json alone, never @latest. No lock file: npm 10 installing by one compiles the
+# engine's database module (a lock cannot record that it needs no build) and fails without a compiler.
 install_pinned() {
-    if [ -f npm-shrinkwrap.json ]; then
-        rm -f package-lock.json
-        npm ci --no-audit --no-fund
-    else
-        npm install
-    fi
+    rm -f package-lock.json npm-shrinkwrap.json  # left by earlier installs; an earlier main carried a shrinkwrap
+    npm install --no-package-lock --no-audit --no-fund
 }
 
 run_init() {
@@ -204,7 +200,7 @@ run_update() {
     # Step 1: Self-update scripts and mcp-server.js from npm registry
     echo "[1/3] Updating deployment scripts from npm registry..."
     if npm install @ardennguyen/zalo-mcp@latest --no-save >/dev/null 2>&1; then
-        SELF_FILES=("zalo-mcp.ps1" "zalo-mcp.sh" "mcp-server.js" "package.json" "npm-shrinkwrap.json")
+        SELF_FILES=("zalo-mcp.ps1" "zalo-mcp.sh" "mcp-server.js" "package.json")
         for FILE in "${SELF_FILES[@]}"; do
             if [ -f "./node_modules/@ardennguyen/zalo-mcp/$FILE" ]; then
                 cp "./node_modules/@ardennguyen/zalo-mcp/$FILE" "./$FILE"
@@ -225,7 +221,7 @@ run_update() {
     fi
     rm -rf venv requirements.txt
 
-    # Step 2: Install the engine version the wrapper pins (npm-shrinkwrap.json), not whatever is newest on npm
+    # Step 2: Install the engine version package.json pins, not whatever is newest on npm
     echo "[2/3] Installing @ardennguyen/zalo-agent-cli as pinned by this wrapper release..."
     if ! install_pinned; then
         echo "[ERROR] Failed to install @ardennguyen/zalo-agent-cli from npm."

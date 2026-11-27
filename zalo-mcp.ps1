@@ -25,7 +25,6 @@ function Run-Install {
     $baseUrl = "https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main"
     $files = @(
         "package.json",
-        "npm-shrinkwrap.json",
         "mcp-server.js",
         "README.md",
         ".env.example",
@@ -50,15 +49,14 @@ function Run-Install {
     }
 }
 
-# Install exactly what npm-shrinkwrap.json pins (the engine version this wrapper release serves); a folder without it
-# (an install older than the pin) falls back to the newest engine its package.json range allows.
+# Install the engine version package.json pins exactly (the one this wrapper release was tested with), as
+# `npm install -g` does: by package.json alone, never @latest. No lock file: npm 10 installing by one compiles the
+# engine's database module (a lock cannot record that it needs no build) and fails without a compiler.
 function Install-Pinned {
-    if (Test-Path "npm-shrinkwrap.json") {
-        if (Test-Path "package-lock.json") { Remove-Item -Force "package-lock.json" }
-        npm ci --no-audit --no-fund
-    } else {
-        npm install
-    }
+    # Left by earlier installs; an earlier main carried a shrinkwrap.
+    if (Test-Path "package-lock.json") { Remove-Item -Force "package-lock.json" }
+    if (Test-Path npm-shrinkwrap.json) { Remove-Item -Force npm-shrinkwrap.json }
+    npm install --no-package-lock --no-audit --no-fund
 }
 
 function Run-Clean {
@@ -73,7 +71,7 @@ function Run-Clean {
 
     Write-Host "[2/2] Removing Node.js dependencies (node_modules)..." -ForegroundColor Yellow
     if (Test-Path "node_modules") { Remove-Item -Recurse -Force "node_modules" }
-    # npm-shrinkwrap.json stays: it is the engine version this wrapper serves, not a dependency.
+    # package.json stays: its exact engine version is the one this wrapper release serves.
     if (Test-Path "package-lock.json") { Remove-Item -Force "package-lock.json" }
     if (Test-Path "venv") { Remove-Item -Recurse -Force "venv" }
     if (Test-Path "requirements.txt") { Remove-Item -Force "requirements.txt" }
@@ -190,7 +188,7 @@ function Run-Update {
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  -> [WARNING] Could not download @ardennguyen/zalo-mcp from npm. (continuing)" -ForegroundColor Yellow
     } else {
-        $selfFiles = @("zalo-mcp.ps1", "zalo-mcp.sh", "mcp-server.js", "package.json", "npm-shrinkwrap.json")
+        $selfFiles = @("zalo-mcp.ps1", "zalo-mcp.sh", "mcp-server.js", "package.json")
         foreach ($file in $selfFiles) {
             $sourcePath = ".\node_modules\@ardennguyen\zalo-mcp\$file"
             if (Test-Path $sourcePath) {
@@ -209,7 +207,7 @@ function Run-Update {
     if (Test-Path "venv") { Remove-Item -Recurse -Force "venv" }
     if (Test-Path "requirements.txt") { Remove-Item -Force "requirements.txt" }
 
-    # Step 2: Install the engine version the wrapper pins (npm-shrinkwrap.json), not whatever is newest on npm
+    # Step 2: Install the engine version package.json pins, not whatever is newest on npm
     Write-Host "[2/3] Installing @ardennguyen/zalo-agent-cli as pinned by this wrapper release..." -ForegroundColor Yellow
     Install-Pinned
     if ($LASTEXITCODE -ne 0) {

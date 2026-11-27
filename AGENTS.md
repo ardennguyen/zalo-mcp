@@ -15,14 +15,15 @@ silent.
 
 ## Non-negotiables
 
-1. **A wrapper install serves the engine `npm-shrinkwrap.json` pins.** It is the lock file, kept as
-   a shrinkwrap because npm publishes that one (never `package-lock.json`) and installs a package's
-   dependencies by it: `npm install -g`, the scripts' `install`/`init`/`update` (`npm ci`) and a
-   `git clone` + `npm ci` all get exactly that engine. An engine release is not reachable through
-   the wrapper until the pin is bumped here (`npm install @ardennguyen/zalo-agent-cli@X.Y.Z
-   --package-lock-only`, which writes `npm-shrinkwrap.json`; commit `build: pin engine X.Y.Z in the
-   lock file`) and the wrapper is released. Never add a `package-lock.json` beside it. The steps
-   are `../zalo-agent-cli/docs/RELEASE.md` §2.
+1. **A wrapper install serves the engine version `package.json` pins exactly** (`"3.5.1"`, never a
+   range): every npm reads it, so `npm install -g`, the scripts' `install`/`init`/`update` and a
+   `git clone` + `npm ci` all get that engine. `package-lock.json` is the repo's ordinary lock (CI
+   runs `npm ci`); npm never publishes it, and the scripts install without one (`npm install
+   --no-package-lock`, never `@latest`): npm 10 installing by a lock compiles the engine's database
+   module and fails without a compiler. No `npm-shrinkwrap.json`: npm 12 neither packs it nor
+   runs `npm ci` by it. An engine release is not reachable through the wrapper until the pin is
+   bumped here (set the version in `package.json`, `npm install --package-lock-only`; commit
+   `build: pin engine X.Y.Z`) and the wrapper is released. The steps are `../zalo-agent-cli/docs/RELEASE.md` §2.
 2. **Never run `npm install` in a deployed folder** (`V:\zalo_mcp` or any `zalo-mcp` install). Only
    `.\zalo-mcp.ps1 update` / `bash zalo-mcp.sh update`. Deploys pull `ardennguyen/zalo-mcp`, not
    the original PhucMPham repo, and install the engine from npm — a deploy runs a *published*
@@ -84,8 +85,8 @@ This section is byte-identical in the `AGENTS.md` of all four repos; change it i
 - Work lands on the active version branch, **`v2.0-dev`**, never directly on `main`. `main` moves
   only by a pull request from the version branch, and that PR is a release — **the user approves
   it**. Never bump a version, tag or branch on your own.
-- A release: bump `version` in `package.json` on `v2.0-dev`, update the engine range if the engine's
-  major/minor moved, `npm test`, commit `chore: bump version to A.B.C …`, push, PR into `main`, tag
+- A release: bump `version` in `package.json` on `v2.0-dev`, check the exact engine pin is the one
+  tested, `npm test`, commit `chore: bump version to A.B.C …`, push, PR into `main`, tag
   `vA.B.C` on the merge commit, GitHub Release from the tag. The Release triggers `publish.yml`
   (npm trusted publishing, no token). **Never run `npm publish` by hand.**
 - The tag is the only name a release has; never create a branch named after a release.
@@ -99,7 +100,7 @@ This section is byte-identical in the `AGENTS.md` of all four repos; change it i
 | `README.md` (VN + EN halves, same commit) | install/update/clean flow, auth, MCP client config, the engine-version note in "Requirements" |
 | `docs/account-pinning.{md,vi.md}` | `--account` pass-through behavior |
 | `.env.example` | an env var the launcher or scripts read |
-| `npm-shrinkwrap.json` | an engine release (the pin, §Non-negotiables 1) |
+| `package.json` + `package-lock.json` | an engine release (the exact pin, §Non-negotiables 1) |
 
 Any MCP tool count or list quoted here must match `../zalo-agent-cli/src/mcp/mcp-tools.js`
 (`node ../zalo-agent-cli/scripts/count-surface.mjs` prints it).
