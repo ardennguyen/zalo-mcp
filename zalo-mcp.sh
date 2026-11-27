@@ -101,7 +101,7 @@ run_init() {
     echo "[1/4] Checking Node.js installation..."
     if ! command -v node >/dev/null 2>&1; then
         echo "[ERROR] Node.js is not installed or not in your PATH."
-        echo "Please download and install Node.js - version 22.19 or higher - from: https://nodejs.org/"
+        echo "Please download and install Node.js - 26 LTS recommended, 22.19 or higher required - from: https://nodejs.org/"
         echo ""
         exit 1
     fi

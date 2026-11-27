@@ -20,7 +20,7 @@ Gói cài đặt độc lập **Model Context Protocol (MCP)** server và CLI wr
 ## 📋 Yêu cầu hệ thống
 
 Trước khi cài đặt, hãy đảm bảo máy bạn đã có:
-*   **Node.js**: Phiên bản 22.19 trở lên (Bắt buộc cho MCP server và CLI; engine 3.0 yêu cầu `>=22.19.0`).
+*   **Node.js**: Khuyến nghị 26 LTS; từ 22.19 trở lên đều chạy được (Bắt buộc cho MCP server và CLI; engine 3.0 yêu cầu `>=22.19.0`).
 *   **Git**: Cần thiết để clone các bản cập nhật phụ thuộc.
 *   **`@ardennguyen/zalo-agent-cli`**: `zalo-mcp` 2.2.1 cài đúng engine `3.6.1`. Mỗi bản wrapper ghim đúng một phiên bản engine đã được thử cùng nó, ghi chính xác trong `package.json` (không phải một khoảng phiên bản): `npm install -g`, trình cài 1-click và lệnh `update` đều cài đúng phiên bản đó, không phải bản engine mới nhất trên npm. Engine 3.0.0 chạy trên lớp giao thức Zalo riêng (không còn zca-js), và cung cấp **37 MCP tool**: mọi lệnh CLI đều có một thao tác MCP, kể cả các lệnh Official Account, ZBS và Social qua `zalo_official`. Tool và cờ mới của engine chỉ dùng được qua `zalo-mcp` sau khi bạn cập nhật (`.\zalo-mcp.ps1 update` / `./zalo-mcp.sh update`, hoặc `npm install -g @ardennguyen/zalo-mcp@latest` nếu cài toàn cục). Các wrapper 2.0.5–2.0.9 chạy engine 2.5.x. Lịch sử phiên bản: [CHANGELOG.md](CHANGELOG.md).
 
@@ -242,7 +242,7 @@ Self-contained **Model Context Protocol (MCP)** server and CLI wrapper for Zalo.
 
 ### 📋 Prerequisites
 
-*   **Node.js**: v22.19 or higher (required for MCP server and CLI; engine 3.0 needs `>=22.19.0`).
+*   **Node.js**: 26 LTS recommended; v22.19 or higher works (required for MCP server and CLI; engine 3.0 needs `>=22.19.0`).
 *   **Git**: Required to pull dependencies.
 *   **`@ardennguyen/zalo-agent-cli`**: `zalo-mcp` 2.2.1 installs engine `3.6.1` exactly. Each wrapper release pins the one engine version it was tested with, as an exact version in `package.json` (not a range): `npm install -g`, the 1-click installer and `update` all install exactly that version, not the newest engine on npm. Engine 3.0.0 runs on its own Zalo protocol layer (no zca-js), and serves **37 MCP tools**: every CLI command has an MCP action, the Official Account, ZBS and Social commands included through `zalo_official`. A new engine tool or flag reaches `zalo-mcp` once you update (`.\zalo-mcp.ps1 update` / `./zalo-mcp.sh update`, or `npm install -g @ardennguyen/zalo-mcp@latest` for a global install). Wrappers 2.0.5–2.0.9 run engine 2.5.x. Version history: [CHANGELOG.md](CHANGELOG.md).
 

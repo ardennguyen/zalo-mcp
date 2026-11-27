@@ -16,11 +16,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 26
           registry-url: https://registry.npmjs.org
 
-      # npm trusted publishing (OIDC) needs npm >= 11.5.1; Node 22 ships npm 10. npm ^12.2.0 is the
-      # current line (it needs Node ^22.22.2, which `22` resolves to).
+      # npm trusted publishing (OIDC) needs npm >= 11.5.1. npm ^12.2.0 is the current line (it needs
+      # Node ^22.22.2, ^24.15.0 or >=26); the release runs on Node 26, the LTS line we run.
       - run: npm install -g npm@^12.2.0
 
       - run: git config --global url."https://github.com/".insteadOf "git@github.com:"

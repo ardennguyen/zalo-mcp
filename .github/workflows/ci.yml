@@ -13,14 +13,19 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # 26 is the LTS line every machine of ours runs; 22 is the floor `engines` still promises users.
+        node-version: [22, 26]
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ matrix.node-version }}
 
-      # The same npm the publish workflow uses (needs Node ^22.22.2; `22` resolves to the latest 22.x).
+      # The same npm the publish workflow uses (needs Node ^22.22.2, ^24.15.0 or >=26; `22` and `26` resolve to the
+      # latest of each line).
       - run: npm install -g npm@^12.2.0
 
       - run: git config --global url."https://github.com/".insteadOf "git@github.com:"

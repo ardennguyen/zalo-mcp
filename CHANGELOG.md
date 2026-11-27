@@ -10,6 +10,10 @@ what changed in the wrapper and which engine it installs. Releases before 2.1.0 
 
 ## [Unreleased]
 
+#### Changed
+
+- **Node 26 (the current LTS line) is the recommended runtime.** CI runs the tests on Node 26 as well as Node 22, and releases run on Node 26; Node 22.19 or later still works.
+
 ## [2.2.1] — 2026-11-27
 
 Installs engine 3.6.1 (pinned exactly in `package.json`): fixes to 3.6.0's sync, among them the decode worker the 3.6.0 package left out (see the engine's CHANGELOG).

@@ -106,7 +106,7 @@ function Run-Init {
         Write-Host "Node.js is ready.`n" -ForegroundColor Green
     } catch {
         Write-Host "[ERROR] Node.js is not installed or not in your PATH." -ForegroundColor Red
-        Write-Host "Please download and install Node.js - version 22.19 or higher - from: https://nodejs.org/`n"
+        Write-Host "Please download and install Node.js - 26 LTS recommended, 22.19 or higher required - from: https://nodejs.org/`n"
         exit 1
     }
     
