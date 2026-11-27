@@ -22,7 +22,7 @@ Gói cài đặt độc lập **Model Context Protocol (MCP)** server và CLI wr
 Trước khi cài đặt, hãy đảm bảo máy bạn đã có:
 *   **Node.js**: Phiên bản 22.19 trở lên (Bắt buộc cho MCP server và CLI; engine 3.0 yêu cầu `>=22.19.0`).
 *   **Git**: Cần thiết để clone các bản cập nhật phụ thuộc.
-*   **`@ardennguyen/zalo-agent-cli`**: `zalo-mcp` 2.1.1 cài đúng engine `3.5.1`. Mỗi bản wrapper ghim đúng một phiên bản engine đã được thử cùng nó, ghi chính xác trong `package.json` (không phải một khoảng phiên bản): `npm install -g`, trình cài 1-click và lệnh `update` đều cài đúng phiên bản đó, không phải bản engine mới nhất trên npm. Engine 3.0.0 chạy trên lớp giao thức Zalo riêng (không còn zca-js), và cung cấp **37 MCP tool**: mọi lệnh CLI đều có một thao tác MCP, kể cả các lệnh Official Account, ZBS và Social qua `zalo_official`. Tool và cờ mới của engine chỉ dùng được qua `zalo-mcp` sau khi bạn cập nhật (`.\zalo-mcp.ps1 update` / `./zalo-mcp.sh update`, hoặc `npm install -g @ardennguyen/zalo-mcp@latest` nếu cài toàn cục). Các wrapper 2.0.5–2.0.9 chạy engine 2.5.x. Lịch sử phiên bản: [CHANGELOG.md](CHANGELOG.md).
+*   **`@ardennguyen/zalo-agent-cli`**: `zalo-mcp` 2.2.0 cài đúng engine `3.6.0`. Mỗi bản wrapper ghim đúng một phiên bản engine đã được thử cùng nó, ghi chính xác trong `package.json` (không phải một khoảng phiên bản): `npm install -g`, trình cài 1-click và lệnh `update` đều cài đúng phiên bản đó, không phải bản engine mới nhất trên npm. Engine 3.0.0 chạy trên lớp giao thức Zalo riêng (không còn zca-js), và cung cấp **37 MCP tool**: mọi lệnh CLI đều có một thao tác MCP, kể cả các lệnh Official Account, ZBS và Social qua `zalo_official`. Tool và cờ mới của engine chỉ dùng được qua `zalo-mcp` sau khi bạn cập nhật (`.\zalo-mcp.ps1 update` / `./zalo-mcp.sh update`, hoặc `npm install -g @ardennguyen/zalo-mcp@latest` nếu cài toàn cục). Các wrapper 2.0.5–2.0.9 chạy engine 2.5.x. Lịch sử phiên bản: [CHANGELOG.md](CHANGELOG.md).
 
 > [!IMPORTANT]
 > **Engine 3.0 đã đổi hợp đồng MCP.** Client viết cho 2.x cần đổi theo:
@@ -72,10 +72,13 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercont
 2. Tải các file wrapper và cấu hình.
 3. Cài đặt các gói Node.js vào thư mục `node_modules/` cục bộ.
 4. Liên kết lệnh `zalo-mcp` toàn cục (`npm link`) để chạy từ mọi thư mục.
-5. Tạo file cấu hình `.env` cho Port (`ZALO_MCP_HTTP_PORT`): port mà `zalo-mcp --http` dùng khi không ghi port. Không có `--http`, server chạy stdio.
+5. Tạo file cấu hình `.env` cho Port (`ZALO_MCP_HTTP_PORT`): port mà `zalo-mcp --http` dùng khi không ghi port. Không có `--http`, server chạy stdio: trình cài chỉ ghi port, không bật HTTP. Riêng `ZALO_MCP_HTTP_PORT` đặt trong biến môi trường thật hoặc trong `~/.zalo-agent-cli/.env` thì engine hiểu là "chạy HTTP trên port này", kể cả khi không có `--http`.
 
 > [!TIP]
 > **Phân tách file `.env` được khuyến nghị:** Chỉ nên dùng `zalo-mcp/.env` để cấu hình **PORT** (`ZALO_MCP_HTTP_PORT`). Các biến môi trường điều hướng thư mục lưu trữ (`ZALO_CREDENTIALS_DIR`, `ZALO_DATA_DIR`, `ZALO_MEDIA_DIR`, `ZALO_OA_DIR`) và cấu hình engine nên đặt tại `~/.zalo-agent-cli/.env` (`<CONFIG_DIR>/.env`) để cả `zalo-mcp` lẫn `zalo-agent` luôn đọc chung một nguồn cấu hình duy nhất.
+
+> [!NOTE]
+> **Cài từ `git clone` với npm 10:** `npm ci` cài theo `package-lock.json` của repo, và npm 10 khi cài theo lock file sẽ build module cơ sở dữ liệu của engine từ mã nguồn: cần trình biên dịch C/C++ (Linux: `build-essential` và `python3`; macOS: Xcode Command Line Tools; Windows: Visual Studio Build Tools). Không có trình biên dịch thì dùng `npm install --no-package-lock` (cách trình cài 1-click và `update` làm), hoặc npm 12 (bản CI dùng). Engine vẫn đúng phiên bản được ghim vì `package.json` ghim chính xác.
 
 ---
 
@@ -241,7 +244,7 @@ Self-contained **Model Context Protocol (MCP)** server and CLI wrapper for Zalo.
 
 *   **Node.js**: v22.19 or higher (required for MCP server and CLI; engine 3.0 needs `>=22.19.0`).
 *   **Git**: Required to pull dependencies.
-*   **`@ardennguyen/zalo-agent-cli`**: `zalo-mcp` 2.1.1 installs engine `3.5.1` exactly. Each wrapper release pins the one engine version it was tested with, as an exact version in `package.json` (not a range): `npm install -g`, the 1-click installer and `update` all install exactly that version, not the newest engine on npm. Engine 3.0.0 runs on its own Zalo protocol layer (no zca-js), and serves **37 MCP tools**: every CLI command has an MCP action, the Official Account, ZBS and Social commands included through `zalo_official`. A new engine tool or flag reaches `zalo-mcp` once you update (`.\zalo-mcp.ps1 update` / `./zalo-mcp.sh update`, or `npm install -g @ardennguyen/zalo-mcp@latest` for a global install). Wrappers 2.0.5–2.0.9 run engine 2.5.x. Version history: [CHANGELOG.md](CHANGELOG.md).
+*   **`@ardennguyen/zalo-agent-cli`**: `zalo-mcp` 2.2.0 installs engine `3.6.0` exactly. Each wrapper release pins the one engine version it was tested with, as an exact version in `package.json` (not a range): `npm install -g`, the 1-click installer and `update` all install exactly that version, not the newest engine on npm. Engine 3.0.0 runs on its own Zalo protocol layer (no zca-js), and serves **37 MCP tools**: every CLI command has an MCP action, the Official Account, ZBS and Social commands included through `zalo_official`. A new engine tool or flag reaches `zalo-mcp` once you update (`.\zalo-mcp.ps1 update` / `./zalo-mcp.sh update`, or `npm install -g @ardennguyen/zalo-mcp@latest` for a global install). Wrappers 2.0.5–2.0.9 run engine 2.5.x. Version history: [CHANGELOG.md](CHANGELOG.md).
 
 > [!IMPORTANT]
 > **Engine 3.0 changed the MCP contract.** A client written for 2.x must switch:
@@ -272,7 +275,7 @@ npm install -g @ardennguyen/zalo-mcp
 
 #### Option 2: One-Line Sandboxed Installation
 
-Downloads all dependencies into an isolated `./zalo-mcp` folder, configures `.env` for ports (`ZALO_MCP_HTTP_PORT`, the port `zalo-mcp --http` uses when given none; without `--http` the server speaks stdio), and links the `zalo-mcp` CLI command globally (`npm link`):
+Downloads all dependencies into an isolated `./zalo-mcp` folder, configures `.env` for ports (`ZALO_MCP_HTTP_PORT`, the port `zalo-mcp --http` uses when given none; without `--http` the server speaks stdio: the installer writes a port, it does not turn HTTP on), and links the `zalo-mcp` CLI command globally (`npm link`):
 
 **macOS / Linux:**
 ```bash
@@ -285,7 +288,10 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercont
 ```
 
 > [!TIP]
-> **Recommended `.env` split:** Keep `zalo-mcp/.env` for **PORT settings only** (`ZALO_MCP_HTTP_PORT`). Place storage directory overrides (`ZALO_CREDENTIALS_DIR`, `ZALO_DATA_DIR`, `ZALO_MEDIA_DIR`, `ZALO_OA_DIR`) and engine settings in `~/.zalo-agent-cli/.env` (`<CONFIG_DIR>/.env`) so both `zalo-mcp` and `zalo-agent` share a single source of truth.
+> **Recommended `.env` split:** Keep `zalo-mcp/.env` for **PORT settings only** (`ZALO_MCP_HTTP_PORT`). Place storage directory overrides (`ZALO_CREDENTIALS_DIR`, `ZALO_DATA_DIR`, `ZALO_MEDIA_DIR`, `ZALO_OA_DIR`) and engine settings in `~/.zalo-agent-cli/.env` (`<CONFIG_DIR>/.env`) so both `zalo-mcp` and `zalo-agent` share a single source of truth. Only the folder's `.env` port waits for `--http`: `ZALO_MCP_HTTP_PORT` set in the real environment or in `~/.zalo-agent-cli/.env` tells the engine to serve HTTP on that port even without `--http`.
+
+> [!NOTE]
+> **Installing from a `git clone` with npm 10:** `npm ci` installs by the repo's `package-lock.json`, and npm 10 installing by a lock file builds the engine's database module from source: it needs a C/C++ compiler (Linux: `build-essential` and `python3`; macOS: the Xcode Command Line Tools; Windows: the Visual Studio Build Tools). Without one, run `npm install --no-package-lock` (what the 1-click installer and `update` do), or use npm 12 (the one CI uses). The engine is still the pinned version: `package.json` pins it exactly.
 
 #### Using the `zalo-mcp` Command
 

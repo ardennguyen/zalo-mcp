@@ -12,7 +12,7 @@ what changed in the wrapper and which engine it installs. Releases before 2.1.0 
 
 ## [2.2.0] — 2026-11-27
 
-Installs engine 3.6.0 (pinned exactly in `package.json`): a sync from the phone runs as fast as Zalo's desktop client (see the engine's CHANGELOG).
+Installs engine 3.6.0 (pinned exactly in `package.json`): a sync from the phone runs at the pace Zalo itself does (see the engine's CHANGELOG).
 
 ## [2.1.1] — 2026-11-27
 
