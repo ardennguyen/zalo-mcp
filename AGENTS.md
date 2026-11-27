@@ -15,7 +15,7 @@ silent.
 
 ## Non-negotiables
 
-1. **A wrapper install serves the engine version `package.json` pins exactly** (`"3.5.1"`, never a
+1. **A wrapper install serves the engine version `package.json` pins exactly** (`"3.6.0"`, never a
    range): every npm reads it, so `npm install -g`, the scripts' `install`/`init`/`update` and a
    `git clone` + `npm ci` all get that engine. `package-lock.json` is the repo's ordinary lock (CI
    runs `npm ci`); npm never publishes it, and the scripts install without one (`npm install
@@ -90,8 +90,8 @@ This section is byte-identical in the `AGENTS.md` of all four repos; change it i
   `vA.B.C` on the merge commit, GitHub Release from the tag. The Release triggers `publish.yml`
   (npm trusted publishing, no token). **Never run `npm publish` by hand.**
 - The tag is the only name a release has; never create a branch named after a release.
-- `.github/workflows/prepare-release.yml` targets `v2.0-dev`; update it when the version branch
-  changes.
+- The workflows are `ci.yml` (every push and pull request: `npm ci`, `npm test`) and `publish.yml`
+  (a GitHub Release); neither names the version branch, so a new one needs no workflow change.
 
 ## Documentation map
 

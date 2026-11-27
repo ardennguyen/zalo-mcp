@@ -1,6 +1,6 @@
 {
   "name": "@ardennguyen/zalo-mcp",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Zalo Model Context Protocol (MCP) Server Integration",
   "author": "ardennguyen",
   "license": "CC-BY-NC-SA-4.0",
@@ -46,7 +46,7 @@
     "node": ">=22.19.0"
   },
   "dependencies": {
-    "@ardennguyen/zalo-agent-cli": "3.6.0",
+    "@ardennguyen/zalo-agent-cli": "3.6.1",
     "dotenv": "^17.4.2"
   },
   "publishConfig": {
