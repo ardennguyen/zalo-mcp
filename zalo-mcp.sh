@@ -30,6 +30,7 @@ run_install() {
     BASE_URL="https://raw.githubusercontent.com/ardennguyen/zalo-mcp/main"
     FILES=(
         "package.json"
+        "npm-shrinkwrap.json"
         "mcp-server.js"
         "README.md"
         ".env.example"
@@ -70,6 +71,7 @@ run_clean() {
     echo ""
 
     echo "[2/2] Removing Node.js dependencies (node_modules)..."
+    # npm-shrinkwrap.json stays: it is the engine version this wrapper serves, not a dependency.
     rm -rf node_modules package-lock.json venv requirements.txt
     echo "Dependencies removed."
     echo ""
@@ -80,6 +82,17 @@ run_clean() {
     echo "Your deployment folder is now completely reset."
     echo "Run './zalo-mcp.sh init' to download fresh dependencies again."
     echo ""
+}
+
+# Install exactly what npm-shrinkwrap.json pins (the engine version this wrapper release serves); a folder without it
+# (an install older than the pin) falls back to the newest engine its package.json range allows.
+install_pinned() {
+    if [ -f npm-shrinkwrap.json ]; then
+        rm -f package-lock.json
+        npm ci --no-audit --no-fund
+    else
+        npm install
+    fi
 }
 
 run_init() {
@@ -109,12 +122,12 @@ run_init() {
     
     # 2. Install Node.js dependencies
     if [ "$CLEAN_INSTALL" = "1" ]; then
-        echo "[CLEAN] Removing existing node_modules and package-lock.json..."
+        echo "[CLEAN] Removing existing node_modules..."
         rm -rf node_modules package-lock.json venv
     fi
-    
+
     echo "[2/4] Installing Node.js dependencies locally..."
-    if ! npm install; then
+    if ! install_pinned; then
         echo "[ERROR] Failed to install Node.js dependencies. Check your internet connection or npm logs."
         echo ""
         exit 1
@@ -144,9 +157,10 @@ run_init() {
         echo "--oa-port is ignored: nothing reads ZALO_OA_WEBHOOK_PORT. Pass --port to 'zalo-agent oa listen' instead."
     fi
 
-    # Interactive port selection if not passed as CLI arguments
+    # Interactive port selection if not passed as CLI arguments. The port is used only by `zalo-mcp --http`
+    # without a port: the server speaks stdio by default.
     if [ -z "$MCP_PORT" ]; then
-        read -p "Enter Zalo MCP HTTP Port [default: 3847]: " MCP_INPUT
+        read -p "Port for 'zalo-mcp --http' (stdio is the default) [default: 3847]: " MCP_INPUT
         MCP_PORT=${MCP_INPUT:-3847}
     fi
     
@@ -162,7 +176,7 @@ run_init() {
         else print $0;
     }' .env > .env.tmp && mv .env.tmp .env
     
-    echo "Configured Zalo MCP HTTP Port to: $MCP_PORT"
+    echo "Port for 'zalo-mcp --http': $MCP_PORT (without --http the server speaks stdio)"
     echo ""
     
     echo "==================================================="
@@ -190,7 +204,7 @@ run_update() {
     # Step 1: Self-update scripts and mcp-server.js from npm registry
     echo "[1/3] Updating deployment scripts from npm registry..."
     if npm install @ardennguyen/zalo-mcp@latest --no-save >/dev/null 2>&1; then
-        SELF_FILES=("zalo-mcp.ps1" "zalo-mcp.sh" "mcp-server.js" "package.json")
+        SELF_FILES=("zalo-mcp.ps1" "zalo-mcp.sh" "mcp-server.js" "package.json" "npm-shrinkwrap.json")
         for FILE in "${SELF_FILES[@]}"; do
             if [ -f "./node_modules/@ardennguyen/zalo-mcp/$FILE" ]; then
                 cp "./node_modules/@ardennguyen/zalo-mcp/$FILE" "./$FILE"
@@ -211,13 +225,13 @@ run_update() {
     fi
     rm -rf venv requirements.txt
 
-    # Step 2: Update @ardennguyen/zalo-agent-cli from npm registry
-    echo "[2/3] Updating @ardennguyen/zalo-agent-cli from npm registry..."
-    if ! npm install @ardennguyen/zalo-agent-cli@latest; then
-        echo "[ERROR] Failed to update @ardennguyen/zalo-agent-cli from npm."
+    # Step 2: Install the engine version the wrapper pins (npm-shrinkwrap.json), not whatever is newest on npm
+    echo "[2/3] Installing @ardennguyen/zalo-agent-cli as pinned by this wrapper release..."
+    if ! install_pinned; then
+        echo "[ERROR] Failed to install @ardennguyen/zalo-agent-cli from npm."
         exit 1
     fi
-    echo "@ardennguyen/zalo-agent-cli updated successfully."
+    echo "@ardennguyen/zalo-agent-cli installed: $(node -p "require('./node_modules/@ardennguyen/zalo-agent-cli/package.json').version" 2>/dev/null)."
     echo ""
 
     # Step 3: Refresh global zalo-mcp CLI link
@@ -247,7 +261,7 @@ if [ -z "$ACTION" ]; then
     echo "Options (for init):"
     echo "  --clean         Remove existing dependencies before initialization"
     echo "  --oa-port <port> Ignored (kept so existing scripts still run); use 'oa listen --port'"
-    echo "  --mcp-port <port> HTTP port for MCP (default: 3847)"
+    echo "  --mcp-port <port> Port 'zalo-mcp --http' uses when given none (default: 3847; stdio is the default transport)"
     exit 1
 fi
 

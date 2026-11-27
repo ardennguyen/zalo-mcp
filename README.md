@@ -22,7 +22,7 @@ Gói cài đặt độc lập **Model Context Protocol (MCP)** server và CLI wr
 Trước khi cài đặt, hãy đảm bảo máy bạn đã có:
 *   **Node.js**: Phiên bản 22.19 trở lên (Bắt buộc cho MCP server và CLI; engine 3.0 yêu cầu `>=22.19.0`).
 *   **Git**: Cần thiết để clone các bản cập nhật phụ thuộc.
-*   **`@ardennguyen/zalo-agent-cli`**: `zalo-mcp` 2.1.0 cần engine `3.0.0` trở lên (`^3.0.0`; gói tự cài đúng phiên bản). Engine 3.0.0 chạy trên lớp giao thức Zalo riêng (không còn zca-js), và cung cấp **37 MCP tool**: mọi lệnh CLI đều có một thao tác MCP, kể cả các lệnh Official Account, ZBS và Social qua `zalo_official`. Tool và cờ mới của engine chỉ dùng được qua `zalo-mcp` sau khi bạn cập nhật (`.\zalo-mcp.ps1 update` / `./zalo-mcp.sh update`, hoặc `npm install -g @ardennguyen/zalo-mcp@latest` nếu cài toàn cục). Các wrapper 2.0.5–2.0.9 chạy engine 2.5.x. Lịch sử phiên bản: [CHANGELOG.md](CHANGELOG.md).
+*   **`@ardennguyen/zalo-agent-cli`**: `zalo-mcp` 2.1.0 cần engine `3.0.0` trở lên (`^3.0.0`). Mỗi bản wrapper ghim đúng một phiên bản engine đã được thử cùng nó (`npm-shrinkwrap.json`): `npm install -g`, trình cài 1-click và lệnh `update` đều cài đúng phiên bản đó (`npm ci`), không phải bản engine mới nhất trên npm. Engine 3.0.0 chạy trên lớp giao thức Zalo riêng (không còn zca-js), và cung cấp **37 MCP tool**: mọi lệnh CLI đều có một thao tác MCP, kể cả các lệnh Official Account, ZBS và Social qua `zalo_official`. Tool và cờ mới của engine chỉ dùng được qua `zalo-mcp` sau khi bạn cập nhật (`.\zalo-mcp.ps1 update` / `./zalo-mcp.sh update`, hoặc `npm install -g @ardennguyen/zalo-mcp@latest` nếu cài toàn cục). Các wrapper 2.0.5–2.0.9 chạy engine 2.5.x. Lịch sử phiên bản: [CHANGELOG.md](CHANGELOG.md).
 
 > [!IMPORTANT]
 > **Engine 3.0 đã đổi hợp đồng MCP.** Client viết cho 2.x cần đổi theo:
@@ -37,8 +37,8 @@ Trước khi cài đặt, hãy đảm bảo máy bạn đã có:
 > - **Một phiên đăng nhập web cho mỗi tài khoản.** Server chính là phiên web đó: đăng nhập QR vào Zalo **trên trình duyệt** bằng cùng tài khoản sẽ đăng xuất server. **Điện thoại và ứng dụng Zalo trên máy tính** là các phiên riêng, chạy song song được. Hãy đọc và trả lời trên điện thoại hoặc ứng dụng máy tính bên cạnh server, không mở tài khoản trên trình duyệt.
 > - **Dữ liệu được mã hóa khi lưu:** phiên đăng nhập, cơ sở dữ liệu tin nhắn `zalo.db` và media được niêm phong bằng khóa của từng tài khoản (DPAPI trên Windows, keychain trên macOS, passphrase trên VPS). Lệnh 3.0 đầu tiên chuyển dữ liệu cũ ngay tại chỗ, không giữ bản rõ. Đọc và sao lưu bằng `zalo-mcp db query` / `zalo-mcp db backup`, không mở `zalo.db` bằng `sqlite3`.
 > - **Presence on-demand** là mặc định của server HTTP: socket Zalo đóng sau 5 phút rảnh và mở lại ở lần gọi tool hay chờ tin kế tiếp; tin đến trong lúc đó được bù khi kết nối lại. MCP qua stdio vẫn luôn kết nối. Cần thời gian thực (webhook ngay lập tức): `ZALO_PRESENCE_MODE=always-on`.
-> - **Tên theo biệt danh trước:** mọi kết quả gọi một người bằng biệt danh bạn đặt cho họ, rồi tên Zalo (như các ứng dụng của Zalo). `senderName` giờ ưu tiên biệt danh; giá trị gốc nằm ở `senderAlias` và `senderZaloName`.
-> - **Rời nhóm là xóa lịch sử cục bộ của nhóm** (tự rời, bị mời ra, bị chặn, nhóm giải tán), như các ứng dụng của Zalo; sự kiện `group_gone` báo điều đó. Muốn giữ: `groups.onLeave: "keep"` trong `storage.json`.
+> - **Tên theo biệt danh trước:** mọi kết quả gọi một người bằng biệt danh bạn đặt cho họ, rồi tên Zalo (như Zalo hiển thị). `senderName` giờ ưu tiên biệt danh; giá trị gốc nằm ở `senderAlias` và `senderZaloName`.
+> - **Rời nhóm là xóa lịch sử cục bộ của nhóm** (tự rời, bị mời ra, bị chặn, nhóm giải tán), như Zalo làm; sự kiện `group_gone` báo điều đó. Muốn giữ: `groups.onLeave: "keep"` trong `storage.json`.
 > - **Lệnh CLI phá hủy cần `--yes`:** `account export`, `logout`, `account remove`, `db export --plaintext`, `msg undo`, `group leave`, … không làm gì và thoát mã 2 nếu thiếu nó; `--dry-run` cho xem trước.
 
 ---
@@ -72,7 +72,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercont
 2. Tải các file wrapper và cấu hình.
 3. Cài đặt các gói Node.js vào thư mục `node_modules/` cục bộ.
 4. Liên kết lệnh `zalo-mcp` toàn cục (`npm link`) để chạy từ mọi thư mục.
-5. Tạo file cấu hình `.env` cho Port (`ZALO_MCP_HTTP_PORT`).
+5. Tạo file cấu hình `.env` cho Port (`ZALO_MCP_HTTP_PORT`): port mà `zalo-mcp --http` dùng khi không ghi port. Không có `--http`, server chạy stdio.
 
 > [!TIP]
 > **Phân tách file `.env` được khuyến nghị:** Chỉ nên dùng `zalo-mcp/.env` để cấu hình **PORT** (`ZALO_MCP_HTTP_PORT`). Các biến môi trường điều hướng thư mục lưu trữ (`ZALO_CREDENTIALS_DIR`, `ZALO_DATA_DIR`, `ZALO_MEDIA_DIR`, `ZALO_OA_DIR`) và cấu hình engine nên đặt tại `~/.zalo-agent-cli/.env` (`<CONFIG_DIR>/.env`) để cả `zalo-mcp` lẫn `zalo-agent` luôn đọc chung một nguồn cấu hình duy nhất.
@@ -84,7 +84,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercont
 Sau khi cài đặt (bằng Cách 1 hoặc Cách 2), bạn có thể chạy `zalo-mcp` trực tiếp từ bất kỳ đâu trong PowerShell, CMD, hoặc Bash mà không cần `cd` vào thư mục cài đặt hay dùng `npm run`:
 
 ```powershell
-# Khởi chạy MCP server (mặc định: stdio, hoặc thêm --http 3847)
+# Khởi chạy MCP server (mặc định: stdio; --http dùng port trong .env, hoặc --http 3847)
 zalo-mcp
 zalo-mcp --account <ID>
 zalo-mcp --http 3847 --account <ID>      # HTTP trên 127.0.0.1; token lấy từ ZALO_MCP_AUTH_TOKEN (xem dưới)
@@ -241,7 +241,7 @@ Self-contained **Model Context Protocol (MCP)** server and CLI wrapper for Zalo.
 
 *   **Node.js**: v22.19 or higher (required for MCP server and CLI; engine 3.0 needs `>=22.19.0`).
 *   **Git**: Required to pull dependencies.
-*   **`@ardennguyen/zalo-agent-cli`**: `zalo-mcp` 2.1.0 needs engine `3.0.0` or later (`^3.0.0`; the package installs a matching version). Engine 3.0.0 runs on its own Zalo protocol layer (no zca-js), and serves **37 MCP tools**: every CLI command has an MCP action, the Official Account, ZBS and Social commands included through `zalo_official`. A new engine tool or flag reaches `zalo-mcp` once you update (`.\zalo-mcp.ps1 update` / `./zalo-mcp.sh update`, or `npm install -g @ardennguyen/zalo-mcp@latest` for a global install). Wrappers 2.0.5–2.0.9 run engine 2.5.x. Version history: [CHANGELOG.md](CHANGELOG.md).
+*   **`@ardennguyen/zalo-agent-cli`**: `zalo-mcp` 2.1.0 needs engine `3.0.0` or later (`^3.0.0`). Each wrapper release pins the one engine version it was tested with (`npm-shrinkwrap.json`): `npm install -g`, the 1-click installer and `update` all install exactly that version (`npm ci`), not the newest engine on npm. Engine 3.0.0 runs on its own Zalo protocol layer (no zca-js), and serves **37 MCP tools**: every CLI command has an MCP action, the Official Account, ZBS and Social commands included through `zalo_official`. A new engine tool or flag reaches `zalo-mcp` once you update (`.\zalo-mcp.ps1 update` / `./zalo-mcp.sh update`, or `npm install -g @ardennguyen/zalo-mcp@latest` for a global install). Wrappers 2.0.5–2.0.9 run engine 2.5.x. Version history: [CHANGELOG.md](CHANGELOG.md).
 
 > [!IMPORTANT]
 > **Engine 3.0 changed the MCP contract.** A client written for 2.x must switch:
@@ -257,7 +257,7 @@ Self-contained **Model Context Protocol (MCP)** server and CLI wrapper for Zalo.
 > - **Data is encrypted at rest:** the saved login, the message database `zalo.db` and media are sealed under each account's keys (DPAPI on Windows, the keychain on macOS, a passphrase on a VPS). The first 3.0 command converts existing data in place and keeps no plaintext copy. Read and back up with `zalo-mcp db query` / `zalo-mcp db backup`, not `sqlite3`.
 > - **On-demand presence** is the default for an HTTP server: the Zalo socket closes after 5 idle minutes and opens again on the next tool call or wait; what arrived meanwhile is caught up on reconnect. MCP over stdio stays connected. For real time (immediate webhooks): `ZALO_PRESENCE_MODE=always-on`.
 > - **Names are alias-first:** every reply names a person by the alias you set for them, then their Zalo name (as Zalo's own apps do). `senderName` is now alias-first; the raw values are in `senderAlias` and `senderZaloName`.
-> - **Leaving a group deletes its local history** (left, removed, blocked, or the group disbanded), as Zalo's own apps do; a `group_gone` event says so. To keep it: `groups.onLeave: "keep"` in `storage.json`.
+> - **Leaving a group deletes its local history** (left, removed, blocked, or the group disbanded), as Zalo does; a `group_gone` event says so. To keep it: `groups.onLeave: "keep"` in `storage.json`.
 > - **Destructive CLI commands need `--yes`:** `account export`, `logout`, `account remove`, `db export --plaintext`, `msg undo`, `group leave`, … do nothing and exit 2 without it; `--dry-run` previews.
 
 ### 🚀 Quick Start
@@ -272,7 +272,7 @@ npm install -g @ardennguyen/zalo-mcp
 
 #### Option 2: One-Line Sandboxed Installation
 
-Downloads all dependencies into an isolated `./zalo-mcp` folder, configures `.env` for ports (`ZALO_MCP_HTTP_PORT`), and links the `zalo-mcp` CLI command globally (`npm link`):
+Downloads all dependencies into an isolated `./zalo-mcp` folder, configures `.env` for ports (`ZALO_MCP_HTTP_PORT`, the port `zalo-mcp --http` uses when given none; without `--http` the server speaks stdio), and links the `zalo-mcp` CLI command globally (`npm link`):
 
 **macOS / Linux:**
 ```bash
@@ -292,7 +292,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercont
 Once installed (via Option 1 or Option 2), you can run `zalo-mcp` directly from anywhere in PowerShell, CMD, or Bash without `cd`-ing into an installation folder or using `npm run`:
 
 ```powershell
-# Start the MCP server (default: stdio, or pass --http 3847)
+# Start the MCP server (default: stdio; --http uses the .env port, or pass --http 3847)
 zalo-mcp
 zalo-mcp --account <ID>
 zalo-mcp --http 3847 --account <ID>      # HTTP on 127.0.0.1; the token comes from ZALO_MCP_AUTH_TOKEN (below)

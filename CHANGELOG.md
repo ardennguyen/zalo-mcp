@@ -10,6 +10,27 @@ what changed in the wrapper and which engine it installs. Releases before 2.1.0 
 
 ## [Unreleased]
 
+## [2.1.1] — 2026-11-27
+
+Installs engine 3.5.1 (pinned in `npm-shrinkwrap.json`).
+
+### Fixed
+
+- **`zalo-mcp` with no arguments serves stdio, as documented.** The installers write
+  `ZALO_MCP_HTTP_PORT` into the folder's `.env` as the port `--http` uses when given none, and the
+  launcher handed it on to the engine, which reads it as "serve HTTP": every stdio client config
+  (Claude Desktop, Claude Code, Cursor) started an HTTP server instead. That `.env` value is now
+  used only by `--http`; a port set in the real environment or in `<CONFIG_DIR>/.env` still means
+  HTTP, as the engine documents. dotenv 17 also printed a line on stdout (the stdio JSON-RPC
+  channel) when it read the `.env`; it is quiet now, and the built-in reader no longer overwrites
+  a variable already set.
+- **The engine pin reaches every install.** The pin is the engine version a wrapper release was
+  tested with. It lived in `package-lock.json`, which npm never publishes and the scripts did not
+  use (`install` fetched only `package.json`, `update` installed `@latest`, `clean` deleted the
+  lock), so installs floated to whatever engine was newest. It is now `npm-shrinkwrap.json`, which
+  npm publishes and honors: `npm install -g`, `install`/`init` and `update` (both `npm ci` now)
+  install exactly the pinned engine, and `clean` keeps it.
+
 ## [2.1.0] — 2026-11-15
 
 ### What's changed since v2.0.9
@@ -39,5 +60,6 @@ what changed in the wrapper and which engine it installs. Releases before 2.1.0 
 - Update with `npm install -g @ardennguyen/zalo-mcp@latest`, or `.\zalo-mcp.ps1 update` /
   `./zalo-mcp.sh update` in a one-folder install.
 
-[Unreleased]: https://github.com/ardennguyen/zalo-mcp/compare/v2.1.0...v2.0-dev
+[Unreleased]: https://github.com/ardennguyen/zalo-mcp/compare/v2.1.1...v2.0-dev
+[2.1.1]: https://github.com/ardennguyen/zalo-mcp/releases/tag/v2.1.1
 [2.1.0]: https://github.com/ardennguyen/zalo-mcp/releases/tag/v2.1.0

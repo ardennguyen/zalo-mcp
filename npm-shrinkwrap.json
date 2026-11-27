@@ -1,12 +1,12 @@
 {
   "name": "@ardennguyen/zalo-mcp",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "@ardennguyen/zalo-mcp",
-      "version": "2.1.0",
+      "version": "2.1.1",
       "license": "CC-BY-NC-SA-4.0",
       "dependencies": {
         "@ardennguyen/zalo-agent-cli": "^3.0.0",
@@ -20,12 +20,13 @@
       }
     },
     "node_modules/@ardennguyen/zalo-agent-cli": {
-      "version": "3.0.0",
-      "resolved": "https://registry.npmjs.org/@ardennguyen/zalo-agent-cli/-/zalo-agent-cli-3.0.0.tgz",
-      "integrity": "sha512-1nDIHXQy2n11n5fUEAuYpRiVW6DiDxL0s6476CuGqMtTB91iveCFSz/ASDvhFs8Vw1nx8s4FimYowFhHypQD7A==",
+      "version": "3.5.1",
+      "resolved": "https://registry.npmjs.org/@ardennguyen/zalo-agent-cli/-/zalo-agent-cli-3.5.1.tgz",
+      "integrity": "sha512-DubQUozj/sJ6P4lrBvufr7QuRz0tDL5VsFqdBR/3bXi6r0Px1Y+lt1HzTJ45JoHm/chQX63ElRyzByoAFOYarg==",
       "license": "CC-BY-NC-SA-4.0",
       "dependencies": {
         "@modelcontextprotocol/sdk": "^1.32.1",
+        "@noble/curves": "2.4.0",
         "better-sqlite3-multiple-ciphers": "13.0.3",
         "chalk": "^5.6.2",
         "commander": "^15.0.0",
@@ -40,7 +41,7 @@
         "zod": "^4.6.7"
       },
       "bin": {
-        "zalo-agent": "src/index.js"
+        "zalo-agent": "dist/index.js"
       },
       "engines": {
         "node": ">=22.19.0"
@@ -116,6 +117,33 @@
         "zod": {
           "optional": false
         }
+      }
+    },
+    "node_modules/@noble/curves": {
+      "version": "2.4.0",
+      "resolved": "https://registry.npmjs.org/@noble/curves/-/curves-2.4.0.tgz",
+      "integrity": "sha512-P4/62zrgfH33CneE3Dn4WhJVA22YUU0eR51wKIan4NVRvwsA0YnPTwWGpNbpuacSujmSFLvyzpyuR30+fbq2Ew==",
+      "license": "MIT",
+      "dependencies": {
+        "@noble/hashes": "2.4.0"
+      },
+      "engines": {
+        "node": ">= 20.19.0"
+      },
+      "funding": {
+        "url": "https://paulmillr.com/funding/"
+      }
+    },
+    "node_modules/@noble/hashes": {
+      "version": "2.4.0",
+      "resolved": "https://registry.npmjs.org/@noble/hashes/-/hashes-2.4.0.tgz",
+      "integrity": "sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 20.19.0"
+      },
+      "funding": {
+        "url": "https://paulmillr.com/funding/"
       }
     },
     "node_modules/accepts": {

@@ -65,26 +65,30 @@ if (isMcpServerMode) {
   }
 }
 
-// Load environment variables from local .env if it exists
+// Load environment variables from local .env if it exists. A variable already set in the environment wins, as with
+// dotenv; `fromWrapperEnv` remembers which ones this file supplied.
 const envPath = path.join(__dirname, '.env');
+const fromWrapperEnv = new Set();
 if (fs.existsSync(envPath)) {
+  const before = new Set(Object.keys(process.env));
   try {
-    require('dotenv').config({ path: envPath });
+    require('dotenv').config({ path: envPath, quiet: true });
   } catch (err) {
     console.error('dotenv not found, loading environment variables manually...');
     const content = fs.readFileSync(envPath, 'utf8');
-    content.split('\n').forEach(line => {
+    content.split(/\r?\n/).forEach(line => {
       const trimmed = line.trim();
       if (trimmed && !trimmed.startsWith('#')) {
         const parts = trimmed.split('=');
         if (parts.length >= 2) {
           const key = parts[0].trim();
           const val = parts.slice(1).join('=').trim().replace(/^['"]|['"]$/g, '');
-          process.env[key] = val;
+          if (process.env[key] === undefined) process.env[key] = val;
         }
       }
     });
   }
+  for (const key of Object.keys(process.env)) if (!before.has(key)) fromWrapperEnv.add(key);
 }
 
 // Resolve the zalo-agent CLI entry point (supports local node_modules or hoisted global install)
@@ -215,10 +219,20 @@ const loggedArgs = args.map((arg, i) => {
 });
 console.error(`Starting Zalo MCP Server via: node ${loggedArgs.join(' ')}`);
 
+// The server speaks stdio unless --http is given (README). ZALO_MCP_HTTP_PORT in this folder's .env is only the port
+// `--http` without a value uses: the engine would read it as "serve HTTP", so it is not handed on. A value set in the
+// real environment, or in the engine's own <CONFIG_DIR>/.env, keeps the engine's meaning (serve HTTP on it).
+const childEnv = { ...process.env };
+if (!args.includes('--http')) {
+  for (const key of fromWrapperEnv) {
+    if (key === 'ZALO_MCP_HTTP_PORT' || key.startsWith('ZALO_MCP_HTTP_PORT_')) delete childEnv[key];
+  }
+}
+
 // Spawn the zalo-agent CLI in mcp mode using node directly (cross-platform)
 const child = spawn(process.execPath, args, {
   stdio: ['pipe', 'pipe', 'pipe'],
-  env: process.env
+  env: childEnv
 });
 
 // Pipe parent stdin to child stdin
