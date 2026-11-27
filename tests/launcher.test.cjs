@@ -158,14 +158,6 @@ for (const [flag, value] of [
   }
 }
 
-test('requires engine 3.0.0 or newer, and installs nothing older', () => {
-  const pkg = require('../package.json');
-  assert.equal(pkg.dependencies['@ardennguyen/zalo-agent-cli'], '^3.0.0');
-  // ^3.0.0 is >=3.0.0 <4.0.0: 3.0.0 itself is allowed, 2.x is not (its MCP contract differs).
-  const [maj, min] = pkg.dependencies['@ardennguyen/zalo-agent-cli'].slice(1).split('.').map(Number);
-  assert.deepEqual([maj, min], [3, 0]);
-});
-
 // The README promises stdio by default; the install writes ZALO_MCP_HTTP_PORT into the folder's .env as the port
 // `--http` uses without one. Handed on, the engine read it as "serve HTTP", so a stdio client config got an HTTP server.
 const ENGINE_ENV = "console.log(JSON.stringify({ argv: process.argv.slice(2), port: process.env.ZALO_MCP_HTTP_PORT ?? null, mine: process.env.MINE ?? null }));";
@@ -197,42 +189,104 @@ test('a port set in the real environment keeps the engine meaning, and wins over
   assert.deepEqual(JSON.parse(result.stdout), { argv: ['mcp', 'start'], port: '4001', mine: 'shell' });
 });
 
-// The pin: npm installs a published package's dependencies by its npm-shrinkwrap.json (package-lock.json is never
-// published), and the install and update scripts run `npm ci` on it, so every install serves the engine pinned here.
-test('the engine pin ships in the package and satisfies the range', () => {
+// The pin: package.json names the engine version exactly (no range; 3.x, as 2.x has another MCP contract), which every
+// npm reads, published or not, so `npm install -g`, the install and update scripts and a git clone all serve that
+// engine. package-lock.json is the repo's lock (CI's `npm ci`); npm never publishes it, so installs do not use it.
+const ENGINE = '@ardennguyen/zalo-agent-cli';
+
+test('package.json pins one exact engine version, and the lock agrees', () => {
   const pkg = require('../package.json');
-  const wrap = JSON.parse(readFileSync(path.join(__dirname, '..', 'npm-shrinkwrap.json'), 'utf8'));
-  const pinned = wrap.packages['node_modules/@ardennguyen/zalo-agent-cli'].version;
-  assert.match(pinned, /^3\.\d+\.\d+$/, 'an exact engine 3.x version');
-  assert.equal(wrap.packages[''].dependencies['@ardennguyen/zalo-agent-cli'], pkg.dependencies['@ardennguyen/zalo-agent-cli']);
+  const pinned = pkg.dependencies[ENGINE];
+  assert.match(pinned, /^3\.\d+\.\d+$/, `an exact engine 3.x version, not a range: ${pinned}`);
+  const lock = JSON.parse(readFileSync(path.join(__dirname, '..', 'package-lock.json'), 'utf8'));
+  assert.equal(lock.packages[''].dependencies[ENGINE], pinned);
+  assert.equal(lock.packages[`node_modules/${ENGINE}`].version, pinned);
+  assert.equal(lock.packages[''].version, pkg.version);
+});
+
+test('the package carries what an install needs and no lock file npm would ignore', () => {
   const packed = spawnSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], {
     cwd: path.join(__dirname, '..'), encoding: 'utf8', timeout: 60000, shell: process.platform === 'win32',
   });
   assert.equal(packed.status, 0, packed.stderr);
-  const files = JSON.parse(packed.stdout)[0].files.map((f) => f.path);
-  assert.ok(files.includes('npm-shrinkwrap.json'), `not in the package: ${files.join(', ')}`);
+  // npm 10 prints an array of packs, npm 12 an object keyed by package name.
+  const out = JSON.parse(packed.stdout);
+  const pack = Array.isArray(out) ? out[0] : out[require('../package.json').name];
+  assert.ok(pack && Array.isArray(pack.files), `unexpected npm pack output: ${packed.stdout.slice(0, 300)}`);
+  const files = pack.files.map((f) => f.path);
+  for (const f of ['package.json', 'mcp-server.js', 'zalo-mcp.sh', 'zalo-mcp.ps1', '.env.example']) {
+    assert.ok(files.includes(f), `${f} not in the package: ${files.join(', ')}`);
+  }
+  assert.ok(!files.includes('npm-shrinkwrap.json'), 'npm-shrinkwrap.json is packed');
 });
 
-test('update installs the pinned engine (npm ci), never the newest one', { skip: process.platform === 'win32' }, () => {
-  const dir = mkdtempSync(path.join(tmpdir(), 'zalo-wrapper-update-'));
+test('the installers download and self-update no shrinkwrap', () => {
+  for (const f of ['zalo-mcp.sh', 'zalo-mcp.ps1']) {
+    const src = readFileSync(path.join(__dirname, '..', f), 'utf8');
+    assert.doesNotMatch(src, /"npm-shrinkwrap\.json"/, `${f} still lists npm-shrinkwrap.json`);
+    assert.doesNotMatch(src, /zalo-agent-cli@latest/, `${f} installs the newest engine`);
+  }
+});
+
+// A stand-in npm on PATH that records each call and succeeds, so the scripts run without the registry.
+function runScript(files, args, extra = {}) {
+  const dir = mkdtempSync(path.join(tmpdir(), 'zalo-wrapper-script-'));
+  for (const f of files) copyFileSync(path.join(__dirname, '..', f), path.join(dir, f));
+  for (const [name, body] of Object.entries(extra)) writeFileSync(path.join(dir, name), body);
+  const bin = path.join(dir, 'bin');
+  mkdirSync(bin);
+  writeFileSync(path.join(bin, 'npm'), '#!/bin/sh\necho "$*" >> "$NPM_LOG"\nexit 0\n');
+  chmodSync(path.join(bin, 'npm'), 0o755);
+  const log = path.join(dir, 'npm.log');
+  const result = spawnSync('bash', ['zalo-mcp.sh', ...args], {
+    cwd: dir, encoding: 'utf8', timeout: 30000,
+    env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, NPM_LOG: log },
+  });
+  let calls = [];
+  try { calls = readFileSync(log, 'utf8').trim().split('\n'); } catch { /* npm never ran */ }
+  return { dir, result, calls };
+}
+
+test('clean keeps package.json (the pin) and drops the folder lock', { skip: process.platform === 'win32' }, () => {
+  const { dir, result } = runScript(['zalo-mcp.sh', 'package.json'], ['clean'], { 'package-lock.json': '{}' });
   try {
-    for (const f of ['zalo-mcp.sh', 'package.json', 'npm-shrinkwrap.json', '.env.example']) {
-      copyFileSync(path.join(__dirname, '..', f), path.join(dir, f));
-    }
-    // A stand-in npm on PATH that records each call and succeeds.
-    const bin = path.join(dir, 'bin');
-    mkdirSync(bin);
-    writeFileSync(path.join(bin, 'npm'), '#!/bin/sh\necho "$*" >> "$NPM_LOG"\nexit 0\n');
-    chmodSync(path.join(bin, 'npm'), 0o755);
-    const log = path.join(dir, 'npm.log');
-    const result = spawnSync('bash', ['zalo-mcp.sh', 'update'], {
-      cwd: dir, encoding: 'utf8', timeout: 30000,
-      env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, NPM_LOG: log },
-    });
     assert.equal(result.status, 0, result.stdout + result.stderr);
-    const calls = readFileSync(log, 'utf8').trim().split('\n');
-    assert.ok(calls.some((c) => c.startsWith('ci')), `no npm ci: ${calls.join(' | ')}`);
-    assert.ok(!calls.some((c) => c.includes('zalo-agent-cli@latest')), `installed the newest engine: ${calls.join(' | ')}`);
+    assert.deepEqual(require(path.join(dir, 'package.json')).dependencies, require('../package.json').dependencies);
+    assert.throws(() => readFileSync(path.join(dir, 'package-lock.json')), /ENOENT/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// The scripts install by package.json alone, as `npm install -g` does: npm 10 installing by a lock compiles the
+// engine's database module, which needs no build, and fails without a compiler.
+const LOCK_FREE = /^install --no-package-lock --no-audit --no-fund$/;
+
+test('init installs by package.json alone and drops a stale lock or shrinkwrap', { skip: process.platform === 'win32' }, () => {
+  const { dir, result, calls } = runScript(['zalo-mcp.sh', 'package.json', '.env.example'], ['init', '--mcp-port', '3847'], {
+    'package-lock.json': '{}', 'npm-shrinkwrap.json': '{}',
+  });
+  try {
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.ok(calls.some((c) => LOCK_FREE.test(c)), `no lock-free npm install: ${calls.join(' | ')}`);
+    assert.ok(!calls.some((c) => c.startsWith('ci')), `npm ci: ${calls.join(' | ')}`);
+    assert.throws(() => readFileSync(path.join(dir, 'npm-shrinkwrap.json')), /ENOENT/, 'a stale shrinkwrap stays');
+    assert.throws(() => readFileSync(path.join(dir, 'package-lock.json')), /ENOENT/, 'a stale lock stays');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('update installs the version package.json pins, never the newest one', { skip: process.platform === 'win32' }, () => {
+  // A lock left by an earlier install: update installs by the (new) package.json alone.
+  const { dir, result, calls } = runScript(['zalo-mcp.sh', 'package.json', '.env.example'], ['update'], {
+    'package-lock.json': '{}',
+  });
+  try {
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.ok(calls.some((c) => LOCK_FREE.test(c)), `no lock-free npm install: ${calls.join(' | ')}`);
+    assert.ok(!calls.some((c) => c.startsWith('ci')), `npm ci by the old lock: ${calls.join(' | ')}`);
+    assert.ok(!calls.some((c) => c.includes('zalo-agent-cli@')), `installed an engine by name: ${calls.join(' | ')}`);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

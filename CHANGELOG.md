@@ -12,7 +12,7 @@ what changed in the wrapper and which engine it installs. Releases before 2.1.0 
 
 ## [2.1.1] — 2026-11-27
 
-Installs engine 3.5.1 (pinned in `npm-shrinkwrap.json`).
+Installs engine 3.5.1 (pinned exactly in `package.json`).
 
 ### Fixed
 
@@ -27,9 +27,11 @@ Installs engine 3.5.1 (pinned in `npm-shrinkwrap.json`).
 - **The engine pin reaches every install.** The pin is the engine version a wrapper release was
   tested with. It lived in `package-lock.json`, which npm never publishes and the scripts did not
   use (`install` fetched only `package.json`, `update` installed `@latest`, `clean` deleted the
-  lock), so installs floated to whatever engine was newest. It is now `npm-shrinkwrap.json`, which
-  npm publishes and honors: `npm install -g`, `install`/`init` and `update` (both `npm ci` now)
-  install exactly the pinned engine, and `clean` keeps it.
+  lock), so installs floated to whatever engine was newest. `package.json` now names the engine
+  version exactly instead of the `^3.0.0` range, which every npm version reads: `npm install -g`,
+  `install`/`init` and `update` (by `package.json` alone, as `npm install -g` does; never
+  `@latest`) install exactly the pinned engine, and `clean` keeps it. `package-lock.json` stays
+  the repository's lock for CI.
 
 ## [2.1.0] — 2026-11-15
 
