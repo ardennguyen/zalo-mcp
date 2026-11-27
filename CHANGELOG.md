@@ -10,6 +10,10 @@ what changed in the wrapper and which engine it installs. Releases before 2.1.0 
 
 ## [Unreleased]
 
+## [2.2.0] — 2026-11-27
+
+Installs engine 3.6.0 (pinned exactly in `package.json`): a sync from the phone runs as fast as Zalo's desktop client (see the engine's CHANGELOG).
+
 ## [2.1.1] — 2026-11-27
 
 Installs engine 3.5.1 (pinned exactly in `package.json`).
@@ -62,6 +66,7 @@ Installs engine 3.5.1 (pinned exactly in `package.json`).
 - Update with `npm install -g @ardennguyen/zalo-mcp@latest`, or `.\zalo-mcp.ps1 update` /
   `./zalo-mcp.sh update` in a one-folder install.
 
-[Unreleased]: https://github.com/ardennguyen/zalo-mcp/compare/v2.1.1...v2.0-dev
+[Unreleased]: https://github.com/ardennguyen/zalo-mcp/compare/v2.2.0...v2.0-dev
+[2.2.0]: https://github.com/ardennguyen/zalo-mcp/releases/tag/v2.2.0
 [2.1.1]: https://github.com/ardennguyen/zalo-mcp/releases/tag/v2.1.1
 [2.1.0]: https://github.com/ardennguyen/zalo-mcp/releases/tag/v2.1.0
