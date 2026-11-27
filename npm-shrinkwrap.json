@@ -1,12 +1,12 @@
 {
   "name": "@ardennguyen/zalo-mcp",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "@ardennguyen/zalo-mcp",
-      "version": "2.1.0",
+      "version": "2.1.1",
       "license": "CC-BY-NC-SA-4.0",
       "dependencies": {
         "@ardennguyen/zalo-agent-cli": "^3.0.0",
@@ -20,9 +20,9 @@
       }
     },
     "node_modules/@ardennguyen/zalo-agent-cli": {
-      "version": "3.5.0",
-      "resolved": "https://registry.npmjs.org/@ardennguyen/zalo-agent-cli/-/zalo-agent-cli-3.5.0.tgz",
-      "integrity": "sha512-f0/r/SyWkYE5sC5Wqp0v1yDpZbxXnmzgivTdaVBWCUkTSyRazmJjUge26gl4U0PoVM7NqwTuPt2TaMaEWI4CCA==",
+      "version": "3.5.1",
+      "resolved": "https://registry.npmjs.org/@ardennguyen/zalo-agent-cli/-/zalo-agent-cli-3.5.1.tgz",
+      "integrity": "sha512-DubQUozj/sJ6P4lrBvufr7QuRz0tDL5VsFqdBR/3bXi6r0Px1Y+lt1HzTJ45JoHm/chQX63ElRyzByoAFOYarg==",
       "license": "CC-BY-NC-SA-4.0",
       "dependencies": {
         "@modelcontextprotocol/sdk": "^1.32.1",
